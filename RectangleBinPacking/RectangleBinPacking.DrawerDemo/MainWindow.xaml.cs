@@ -15,7 +15,7 @@ namespace RectangleBinPacking.DrawerDemo
     public partial class MainWindow : Window
     {
 
-        private ShelfAlgorithm shelfAlgorithm { get; set; }
+        private PackingAlgorithm shelfAlgorithm { get; set; }
         public MainWindow()
         {
             InitializeComponent();

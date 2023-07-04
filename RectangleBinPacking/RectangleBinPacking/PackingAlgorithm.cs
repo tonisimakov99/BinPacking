@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace RectangleBinPacking
 {
-    public abstract class ShelfAlgorithm
+    public abstract class PackingAlgorithm
     {
         protected readonly Vector2 binSize;
         protected readonly bool rotate;
 
-        public ShelfAlgorithm(Vector2 binSize, bool rotate)
+        public PackingAlgorithm(Vector2 binSize, bool rotate)
         {
             this.binSize = binSize;
             this.rotate = rotate;

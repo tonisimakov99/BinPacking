@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RectangleBinPacking
 {
-    public class ShelfBestFit : ShelfAlgorithm
+    public class ShelfBestFit : PackingAlgorithm
     {
         private List<Shelf> shelves = new List<Shelf>();
         private Dictionary<ShelfMode, Func<List<Shelf>, int, int, Vector2, bool>> compares = new Dictionary<ShelfMode, Func<List<Shelf>, int, int, Vector2, bool>>()
