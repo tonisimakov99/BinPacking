@@ -14,27 +14,25 @@ namespace RectangleBinPacking.DrawerDemo
     /// </summary>
     public partial class MainWindow : Window
     {
-        private IEnumerable<Type> algorithmTypes;
 
         private ShelfAlgorithm shelfAlgorithm { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            var shelfType = typeof(ShelfAlgorithm);
-            algorithmTypes = Assembly.GetAssembly(shelfType).GetExportedTypes().Where(t => t.BaseType.Name == shelfType.Name);
-            foreach (var algorithmType in algorithmTypes)
-                this.algorithmComboBox.Items.Add(algorithmType.Name);
+            foreach (var value in Enum.GetValues<ShelfMode>())
+                this.algorithmComboBox.Items.Add(value);
             this.algorithmComboBox.SelectedIndex = 0;
             ResetState();
         }
 
         private void Next_Click(object sender, RoutedEventArgs e)
         {
-            var size = new System.Numerics.Vector2(Random.Shared.Next(10, 30), Random.Shared.Next(10, 30));
+            var size = new System.Numerics.Vector2(Random.Shared.Next(10, int.Parse(MaxWidth.Text)), Random.Shared.Next(10, int.Parse(MaxHeight.Text)));
             Info.Content = size;
             var result = shelfAlgorithm.Insert(size);
             if (result != null)
             {
+                Info.Foreground = Brushes.Black;
                 var rect = new Rectangle();
                 Canvas.SetLeft(rect, result.Value.Position.X);
                 Canvas.SetTop(rect, result.Value.Position.Y);
@@ -53,7 +51,10 @@ namespace RectangleBinPacking.DrawerDemo
                 rect.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)Random.Shared.Next(255), (byte)Random.Shared.Next(255), (byte)Random.Shared.Next(255)));
                 RectsCanv.Children.Add(rect);
             }
-
+            else
+            {
+                Info.Foreground = Brushes.Red;
+            }
         }
 
 
@@ -66,8 +67,7 @@ namespace RectangleBinPacking.DrawerDemo
             var size = int.Parse(this.Size.Text);
             RectsCanv.Children.Clear();
 
-            var type = algorithmTypes.FirstOrDefault(t => t.Name == (string)algorithmComboBox.SelectedItem);
-            shelfAlgorithm = (ShelfAlgorithm)Activator.CreateInstance(type, new System.Numerics.Vector2(size, size), this.Rotate.IsChecked.Value);
+            shelfAlgorithm = new ShelfBestFit(new System.Numerics.Vector2(size, size), this.Rotate.IsChecked.Value, (ShelfMode)algorithmComboBox.SelectedValue);
             var rect = new Rectangle();
             rect.Width = size;
             rect.Height = size;

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RectangleBinPacking.DrawerDemo"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow">
     <DockPanel LastChildFill="True">
         <StackPanel Orientation="Vertical" DockPanel.Dock="Left" Width="100">
             <Button x:Name="Reset" Click="Reset_Click">Reset</Button>
@@ -13,6 +13,8 @@
             <CheckBox x:Name="Rotate" IsChecked="True"></CheckBox>
             <TextBox x:Name="Size">512</TextBox>
             <ComboBox x:Name="algorithmComboBox"></ComboBox>
+            <TextBox x:Name="MaxWidth">30</TextBox>
+            <TextBox x:Name="MaxHeight">40</TextBox>
             <Label x:Name="Info"></Label>
         </StackPanel>
         <Canvas x:Name="RectsCanv" ></Canvas>
