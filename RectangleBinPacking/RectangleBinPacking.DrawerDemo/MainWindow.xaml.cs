@@ -67,7 +67,7 @@ namespace RectangleBinPacking.DrawerDemo
             var size = int.Parse(this.Size.Text);
             RectsCanv.Children.Clear();
 
-            shelfAlgorithm = new ShelfBestFit(new System.Numerics.Vector2(size, size), this.Rotate.IsChecked.Value, (ShelfMode)algorithmComboBox.SelectedValue);
+            shelfAlgorithm = new ShelfAlg(new System.Numerics.Vector2(size, size), this.Rotate.IsChecked.Value, (ShelfMode)algorithmComboBox.SelectedValue);
             var rect = new Rectangle();
             rect.Width = size;
             rect.Height = size;
