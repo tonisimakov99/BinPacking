@@ -1,28 +1,16 @@
-﻿using System;
-
-
-
-namespace RectangleBinPacking
+﻿namespace RectangleBinPacking
 {
-
-    public class ShelfNextFitBinPack
+    public class ShelfNextFitBinPack<TId> : Algorithm<TId> where TId : struct
     {
-        public ShelfNextFitBinPack(int width, int height)
+        public ShelfNextFitBinPack(int width, int height) : base(width, height)
         {
-            Init(width, height);
-        }
-        private void Init(int width, int height)
-        {
-            binWidth = width;
-            binHeight = height;
-
             currentX = 0;
             currentY = 0;
             shelfHeight = 0;
             usedSurfaceArea = 0;
         }
 
-        public Node Insert(int width, int height)
+        public override InsertResult? Insert(TId id, int width, int height)
         {
             Node newNode = new Node();
 

@@ -1,6 +1,6 @@
 ﻿namespace RectangleBinPacking
 {
-    public class Rect
+    internal class Rect
     {
         public int x;
         public int y;

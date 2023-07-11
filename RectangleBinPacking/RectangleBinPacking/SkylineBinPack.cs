@@ -1,23 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace RectangleBinPacking
 {
-    public class SkylineBinPack
+    public class SkylineBinPack<TId> : Algorithm<TId> where TId : struct
     {
-
-        public SkylineBinPack(int width, int height, bool useWasteMap)
+        public SkylineBinPack(int width, int height, bool useWasteMap, LevelChoiceHeuristic method) :base(width, height)
         {
-            Init(width, height, useWasteMap);
-        }
-
-        private void Init(int width, int height, bool useWasteMap_)
-        {
-            binWidth = width;
-            binHeight = height;
-
-            useWasteMap = useWasteMap_;
+            this.useWasteMap = useWasteMap;
+            this.method = method;
 
 #if DEBUG
             disjointRects.Clear();
@@ -28,7 +21,7 @@ namespace RectangleBinPacking
             SkylineNode node = new SkylineNode();
             node.x = 0;
             node.y = 0;
-            node.width = binWidth;
+            node.width = width;
             skyLine.Add(node);
 
             if (useWasteMap)
@@ -38,7 +31,7 @@ namespace RectangleBinPacking
             }
         }
 
-        public Rect Insert(int width, int height, LevelChoiceHeuristic method)
+        public override InsertResult? Insert(TId id, int width, int height)
         {
             Rect node = wasteMap.Insert(width, height, true, FreeRectChoiceHeuristic.RectBestShortSideFit, GuillotineSplitHeuristic.SplitMaximizeArea);
 #if DEBUG
@@ -73,11 +66,8 @@ namespace RectangleBinPacking
 
         public float Occupancy()
         {
-            return (float)usedSurfaceArea / (binWidth * binHeight);
+            return (float)usedSurfaceArea / (width * height);
         }
-
-        private int binWidth;
-        private int binHeight;
 
 #if DEBUG
         private DisjointRectCollection disjointRects = new DisjointRectCollection();
@@ -97,9 +87,10 @@ namespace RectangleBinPacking
         private int usedSurfaceArea;
 
         private bool useWasteMap;
+        private readonly LevelChoiceHeuristic method;
         private GuillotineBinPack wasteMap;
 
-        private Rect InsertBottomLeft(int width, int height)
+        private InsertResult? InsertBottomLeft(int width, int height)
         {
             int bestHeight = 0;
             int bestWidth = 0;
@@ -126,7 +117,7 @@ namespace RectangleBinPacking
             return newNode;
         }
 
-        private Rect InsertMinWaste(int width, int height)
+        private InsertResult? InsertMinWaste(int width, int height)
         {
             int bestHeight = 0;
             int bestWastedArea = 0;
@@ -251,7 +242,7 @@ namespace RectangleBinPacking
         private bool RectangleFits(int skylineNodeIndex, int width, int height, ref int y)
         {
             int x = skyLine[skylineNodeIndex].x;
-            if (x + width > binWidth)
+            if (x + width > width)
             {
                 return false;
             }
@@ -261,7 +252,7 @@ namespace RectangleBinPacking
             while (widthLeft > 0)
             {
                 y = Math.Max(y, skyLine[i].y);
-                if (y + height > binHeight)
+                if (y + height > height)
                 {
                     return false;
                 }
@@ -343,8 +334,8 @@ namespace RectangleBinPacking
 
             skyLine.Insert(skylineNodeIndex, newNode);
 
-            Debug.Assert(newNode.x + newNode.width <= binWidth);
-            Debug.Assert(newNode.y <= binHeight);
+            Debug.Assert(newNode.x + newNode.width <= width);
+            Debug.Assert(newNode.y <= height);
 
             for (int i = (skylineNodeIndex + 1); i < skyLine.Count; ++i)
             {
