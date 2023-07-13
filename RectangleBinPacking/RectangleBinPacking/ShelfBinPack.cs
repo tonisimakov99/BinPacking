@@ -4,20 +4,12 @@ using System.Diagnostics;
 
 namespace RectangleBinPacking
 {
-    public class ShelfBinPack
+    public class ShelfBinPack<TId> : Algorithm<TId> where TId : struct
     {
-
-        public ShelfBinPack(int width, int height, bool useWasteMap)
+        public ShelfBinPack(int width, int height, bool useWasteMap, ShelfChoiceHeuristic method) : base(width, height)
         {
-            Init(width, height, useWasteMap);
-        }
-
-        public void Init(int width, int height, bool useWasteMap_)
-        {
-            useWasteMap = useWasteMap_;
-            binWidth = width;
-            binHeight = height;
-
+            this.useWasteMap = useWasteMap;
+            this.method = method;
             currentY = 0;
             usedSurfaceArea = 0;
 
@@ -26,23 +18,18 @@ namespace RectangleBinPacking
 
             if (useWasteMap)
             {
-                wasteMap = new GuillotineBinPack(width, height);
+                wasteMap = new GuillotineBinPack<TId>(width, height, true, FreeRectChoiceHeuristic.RectBestShortSideFit, GuillotineSplitHeuristic.SplitMaximizeArea);
                 wasteMap.GetFreeRectangles().Clear();
             }
         }
 
-        public Rect Insert(int width, int height, ShelfChoiceHeuristic method)
+        public override InsertResult? Insert(TId id, int width, int height)
         {
-            Rect newNode = new Rect();
+            InsertResult? newResult = null;
 
             if (useWasteMap)
             {
-                newNode = wasteMap.Insert(width, height, true, FreeRectChoiceHeuristic.RectBestShortSideFit, GuillotineSplitHeuristic.SplitMaximizeArea);
-                if (newNode.height != 0)
-                {
-                    usedSurfaceArea += width * height;
-                    return newNode;
-                }
+                newResult = wasteMap.Insert(id, width, height);
             }
 
             switch (method)
@@ -50,9 +37,9 @@ namespace RectangleBinPacking
                 case ShelfChoiceHeuristic.ShelfNextFit:
                     if (FitsOnShelf(shelves[shelves.Count - 1], width, height, true))
                     {
-                        AddToShelf(shelves[shelves.Count - 1], width, height, newNode);
+                        AddToShelf(shelves[shelves.Count - 1], width, height, newResult);
 
-                        return newNode;
+                        return newResult;
                     }
                     break;
                 case ShelfChoiceHeuristic.ShelfFirstFit:
@@ -60,9 +47,9 @@ namespace RectangleBinPacking
                     {
                         if (FitsOnShelf(shelves[i], width, height, i == shelves.Count - 1))
                         {
-                            AddToShelf(shelves[i], width, height, newNode);
+                            AddToShelf(shelves[i], width, height, newResult);
 
-                            return newNode;
+                            return newResult;
                         }
                     }
                     break;
@@ -76,7 +63,7 @@ namespace RectangleBinPacking
                             RotateToShelf(shelves[i], ref width, ref height);
                             if (FitsOnShelf(shelves[i], width, height, i == shelves.Count - 1))
                             {
-                                int surfaceArea = ((binWidth - shelves[i].currentX) * shelves[i].height);
+                                int surfaceArea = ((this.width - shelves[i].currentX) * shelves[i].height);
                                 if (surfaceArea < bestShelfSurfaceArea)
                                 {
                                     bestShelf = shelves[i];
@@ -87,8 +74,8 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newNode);
-                            return newNode;
+                            AddToShelf(bestShelf, width, height, newResult);
+                            return newResult;
                         }
                     }
                     break;
@@ -102,7 +89,7 @@ namespace RectangleBinPacking
                             RotateToShelf(shelves[i], ref width, ref height);
                             if (FitsOnShelf(shelves[i], width, height, i == shelves.Count - 1))
                             {
-                                int surfaceArea = (binWidth - shelves[i].currentX) * shelves[i].height;
+                                int surfaceArea = (width - shelves[i].currentX) * shelves[i].height;
                                 if (surfaceArea > bestShelfSurfaceArea)
                                 {
                                     bestShelf = shelves[i];
@@ -113,8 +100,8 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newNode);
-                            return newNode;
+                            AddToShelf(bestShelf, width, height, newResult);
+                            return newResult;
                         }
                     }
                     break;
@@ -141,8 +128,8 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newNode);
-                            return newNode;
+                            AddToShelf(bestShelf, width, height, newResult);
+                            return newResult;
                         }
                     }
                     break;
@@ -156,7 +143,7 @@ namespace RectangleBinPacking
                             RotateToShelf(shelves[i], ref width, ref height);
                             if (FitsOnShelf(shelves[i], width, height, i == shelves.Count - 1))
                             {
-                                int widthDifference = binWidth - shelves[i].currentX - width;
+                                int widthDifference = this.width - shelves[i].currentX - width;
                                 Debug.Assert(widthDifference >= 0);
 
                                 if (widthDifference < bestShelfWidthDifference)
@@ -169,8 +156,8 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newNode);
-                            return newNode;
+                            AddToShelf(bestShelf, width, height, newResult);
+                            return newResult;
                         }
                     }
                     break;
@@ -184,7 +171,7 @@ namespace RectangleBinPacking
                             RotateToShelf(shelves[i], ref width, ref height);
                             if (FitsOnShelf(shelves[i], width, height, i == shelves.Count - 1))
                             {
-                                int widthDifference = binWidth - shelves[i].currentX - width;
+                                int widthDifference = width - shelves[i].currentX - width;
                                 Debug.Assert(widthDifference >= 0);
 
                                 if (widthDifference > bestShelfWidthDifference)
@@ -197,15 +184,15 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newNode);
-                            return newNode;
+                            AddToShelf(bestShelf, width, height, newResult);
+                            return newResult;
                         }
                     }
                     break;
 
             }
 
-            if (width < height && height <= binWidth)
+            if (width < height && height <= width)
             {
                 var swap = height;
                 height = width;
@@ -220,28 +207,26 @@ namespace RectangleBinPacking
                 }
                 StartNewShelf(height);
                 Debug.Assert(FitsOnShelf(shelves[shelves.Count - 1], width, height, true));
-                AddToShelf(shelves[shelves.Count - 1], width, height, newNode);
+                AddToShelf(shelves[shelves.Count - 1], width, height, newResult);
 
-                return newNode;
+                return newResult;
             }
 
-            return newNode;
+            return newResult;
         }
 
         public float Occupancy()
         {
-            return (float)usedSurfaceArea / (binWidth * binHeight);
+            return (float)usedSurfaceArea / (width * height);
         }
-
-        private int binWidth;
-        private int binHeight;
 
         private int currentY;
 
         private int usedSurfaceArea;
 
         private bool useWasteMap;
-        private GuillotineBinPack wasteMap;
+        private readonly ShelfChoiceHeuristic method;
+        private GuillotineBinPack<TId> wasteMap;
 
         private class Shelf
         {
@@ -278,22 +263,22 @@ namespace RectangleBinPacking
             Rect newNode = new Rect();
             newNode.x = shelf.currentX;
             newNode.y = shelf.startY;
-            newNode.width = binWidth - shelf.currentX;
+            newNode.width = width - shelf.currentX;
             newNode.height = shelf.height;
             if (newNode.width > 0)
             {
                 freeRects.Add(newNode);
             }
 
-            shelf.currentX = binWidth;
+            shelf.currentX = width;
 
             wasteMap.MergeFreeList();
         }
 
         private bool FitsOnShelf(Shelf shelf, int width, int height, bool canResize)
         {
-            int shelfHeight = canResize ? (binHeight - shelf.startY) : shelf.height;
-            if ((shelf.currentX + width <= binWidth && height <= shelfHeight) || (shelf.currentX + height <= binWidth && width <= shelfHeight))
+            int shelfHeight = canResize ? (this.height - shelf.startY) : shelf.height;
+            if ((shelf.currentX + width <= this.width && height <= shelfHeight) || (shelf.currentX + height <= this.width && width <= shelfHeight))
             {
                 return true;
             }
@@ -305,7 +290,7 @@ namespace RectangleBinPacking
 
         private void RotateToShelf(Shelf shelf, ref int width, ref int height)
         {
-            if ((width > height && width > binWidth - shelf.currentX) || (width > height && width < shelf.height) || (width < height && height > shelf.height && height <= binWidth - shelf.currentX))
+            if ((width > height && width > this.width - shelf.currentX) || (width > height && width < shelf.height) || (width < height && height > shelf.height && height <= this.width - shelf.currentX))
             {
                 var swap = height;
                 height = width;
@@ -313,30 +298,28 @@ namespace RectangleBinPacking
             }
         }
 
-        private void AddToShelf(Shelf shelf, int width, int height, Rect newNode)
+        private void AddToShelf(Shelf shelf, int width, int height, InsertResult newResult)
         {
             Debug.Assert(FitsOnShelf(shelf, width, height, true));
 
             RotateToShelf(shelf, ref width, ref height);
 
-            newNode.x = shelf.currentX;
-            newNode.y = shelf.startY;
-            newNode.width = width;
-            newNode.height = height;
-            shelf.usedRectangles.Add(newNode);
+            newResult.X = shelf.currentX;
+            newResult.Y = shelf.startY;
+            shelf.usedRectangles.Add(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height });
 
             shelf.currentX += width;
-            Debug.Assert(shelf.currentX <= binWidth);
+            Debug.Assert(shelf.currentX <= width);
 
             shelf.height = Math.Max(shelf.height, height);
-            Debug.Assert(shelf.height <= binHeight);
+            Debug.Assert(shelf.height <= height);
 
             usedSurfaceArea += width * height;
         }
 
         private bool CanStartNewShelf(int height)
         {
-            return shelves[shelves.Count - 1].startY + shelves[shelves.Count - 1].height + height <= binHeight;
+            return shelves[shelves.Count - 1].startY + shelves[shelves.Count - 1].height + height <= height;
         }
 
         private void StartNewShelf(int startingHeight)
@@ -346,7 +329,7 @@ namespace RectangleBinPacking
                 Debug.Assert(shelves[shelves.Count - 1].height != 0);
                 currentY += shelves[shelves.Count - 1].height;
 
-                Debug.Assert(currentY < binHeight);
+                Debug.Assert(currentY < height);
             }
 
             Shelf shelf = new Shelf();
@@ -354,7 +337,7 @@ namespace RectangleBinPacking
             shelf.height = startingHeight;
             shelf.startY = currentY;
 
-            Debug.Assert(shelf.startY + shelf.height <= binHeight);
+            Debug.Assert(shelf.startY + shelf.height <= height);
             shelves.Add(shelf);
         }
     }

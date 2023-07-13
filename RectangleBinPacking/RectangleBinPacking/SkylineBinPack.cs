@@ -27,7 +27,7 @@ namespace RectangleBinPacking
             if (useWasteMap)
             {
                 wasteMap = new GuillotineBinPack<TId>(width, height, true, FreeRectChoiceHeuristic.RectBestShortSideFit, GuillotineSplitHeuristic.SplitMaximizeArea);
-                //wasteMap.GetFreeRectangles().Clear();
+                wasteMap.GetFreeRectangles().Clear();
             }
         }
 
@@ -37,20 +37,23 @@ namespace RectangleBinPacking
 #if DEBUG
             Debug.Assert(disjointRects.Disjoint(new Rect() { x = insertResult.X, y = insertResult.Y, height = height, width = width }));
 #endif
-            if (insertResult.height != 0)
-            {
-                Rect newNode = new Rect();
-                newNode.x = insertResult.x;
-                newNode.y = insertResult.y;
-                newNode.width = insertResult.width;
-                newNode.height = insertResult.height;
-                usedSurfaceArea += width * height;
-#if DEBUG
-                Debug.Assert(disjointRects.Disjoint(newNode));
-                disjointRects.Add(newNode);
-#endif
-                return newNode;
-            }
+            //            if (insertResult.height != 0)
+            //            {
+            //                Rect newNode = new Rect();
+            //                newNode.x = insertResult.x;
+            //                newNode.y = insertResult.y;
+            //                newNode.width = insertResult.width;
+            //                newNode.height = insertResult.height;
+            //                usedSurfaceArea += width * height;
+            //#if DEBUG
+            //                Debug.Assert(disjointRects.Disjoint(newNode));
+            //                disjointRects.Add(newNode);
+            //#endif
+            //                return newNode;
+            //            }
+
+            if (insertResult == null)
+                return null;
 
             switch (method)
             {
@@ -95,26 +98,26 @@ namespace RectangleBinPacking
             int bestHeight = 0;
             int bestWidth = 0;
             int bestIndex = 0;
-            Rect newNode = FindPositionForNewNodeBottomLeft(width, height, ref bestHeight, ref bestWidth, ref bestIndex);
+            var newResult = FindPositionForNewNodeBottomLeft(width, height, ref bestHeight, ref bestWidth, ref bestIndex);
 
             if (bestIndex != -1)
             {
 #if DEBUG
-                Debug.Assert(disjointRects.Disjoint(newNode));
+                Debug.Assert(disjointRects.Disjoint(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height }));
 #endif
-                AddSkylineLevel(bestIndex, newNode);
+                AddSkylineLevel(bestIndex, new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height });
 
                 usedSurfaceArea += width * height;
 #if DEBUG
-                disjointRects.Add(newNode);
+                disjointRects.Add(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height });
 #endif
             }
             else
             {
-                newNode = null;
+                newResult = null;
             }
 
-            return newNode;
+            return newResult;
         }
 
         private InsertResult? InsertMinWaste(int width, int height)
@@ -122,34 +125,34 @@ namespace RectangleBinPacking
             int bestHeight = 0;
             int bestWastedArea = 0;
             int bestIndex = 0;
-            Rect newNode = FindPositionForNewNodeMinWaste(width, height, ref bestHeight, ref bestWastedArea, ref bestIndex);
+            var newResult = FindPositionForNewNodeMinWaste(width, height, ref bestHeight, ref bestWastedArea, ref bestIndex);
 
             if (bestIndex != -1)
             {
 #if DEBUG
-                Debug.Assert(disjointRects.Disjoint(newNode));
+                Debug.Assert(disjointRects.Disjoint(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height }));
 #endif
 
-                AddSkylineLevel(bestIndex, newNode);
+                AddSkylineLevel(bestIndex, new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height });
 
                 usedSurfaceArea += width * height;
 #if DEBUG
-                disjointRects.Add(newNode);
+                disjointRects.Add(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height });
 #endif
             }
             else
             {
-                newNode = null;
+                newResult = null;
             }
 
-            return newNode;
+            return newResult;
         }
-        private Rect FindPositionForNewNodeMinWaste(int width, int height, ref int bestHeight, ref int bestWastedArea, ref int bestIndex)
+        private InsertResult? FindPositionForNewNodeMinWaste(int width, int height, ref int bestHeight, ref int bestWastedArea, ref int bestIndex)
         {
             bestHeight = int.MaxValue;
             bestWastedArea = int.MaxValue;
             bestIndex = -1;
-            Rect newNode = new Rect();
+            InsertResult? newResult = null;
 
             for (int i = 0; i < skyLine.Count; ++i)
             {
@@ -163,12 +166,10 @@ namespace RectangleBinPacking
                         bestHeight = y + height;
                         bestWastedArea = wastedArea;
                         bestIndex = (int)i;
-                        newNode.x = skyLine[i].x;
-                        newNode.y = y;
-                        newNode.width = width;
-                        newNode.height = height;
+                        newResult.X = skyLine[i].x;
+                        newResult.Y = y;
 #if DEBUG
-                        Debug.Assert(disjointRects.Disjoint(newNode));
+                        Debug.Assert(disjointRects.Disjoint(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height }));
 #endif
                     }
                 }
@@ -179,26 +180,25 @@ namespace RectangleBinPacking
                         bestHeight = y + width;
                         bestWastedArea = wastedArea;
                         bestIndex = (int)i;
-                        newNode.x = skyLine[i].x;
-                        newNode.y = y;
-                        newNode.width = height;
-                        newNode.height = width;
+                        newResult.X = skyLine[i].x;
+                        newResult.Y = y;
+
 #if DEBUG
-                        Debug.Assert(disjointRects.Disjoint(newNode));
+                        Debug.Assert(disjointRects.Disjoint(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height }));
 #endif
                     }
                 }
             }
 
-            return newNode;
+            return newResult;
         }
 
-        private Rect FindPositionForNewNodeBottomLeft(int width, int height, ref int bestHeight, ref int bestWidth, ref int bestIndex)
+        private InsertResult? FindPositionForNewNodeBottomLeft(int width, int height, ref int bestHeight, ref int bestWidth, ref int bestIndex)
         {
             bestHeight = int.MaxValue;
             bestIndex = -1;
             bestWidth = int.MaxValue;
-            Rect newNode = new Rect();
+            InsertResult? newResult = null;
             for (int i = 0; i < skyLine.Count; ++i)
             {
                 int y = 0;
@@ -209,12 +209,10 @@ namespace RectangleBinPacking
                         bestHeight = y + height;
                         bestIndex = (int)i;
                         bestWidth = skyLine[i].width;
-                        newNode.x = skyLine[i].x;
-                        newNode.y = y;
-                        newNode.width = width;
-                        newNode.height = height;
+                        newResult.X = skyLine[i].x;
+                        newResult.Y = y;
 #if DEBUG
-                        Debug.Assert(disjointRects.Disjoint(newNode));
+                        Debug.Assert(disjointRects.Disjoint(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height }));
 #endif
                     }
                 }
@@ -225,18 +223,16 @@ namespace RectangleBinPacking
                         bestHeight = y + width;
                         bestIndex = (int)i;
                         bestWidth = skyLine[i].width;
-                        newNode.x = skyLine[i].x;
-                        newNode.y = y;
-                        newNode.width = height;
-                        newNode.height = width;
+                        newResult.X = skyLine[i].x;
+                        newResult.Y = y;
 #if DEBUG
-                        Debug.Assert(disjointRects.Disjoint(newNode));
+                        Debug.Assert(disjointRects.Disjoint(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height }));
 #endif
                     }
                 }
             }
 
-            return newNode;
+            return newResult;
         }
 
         private bool RectangleFits(int skylineNodeIndex, int width, int height, ref int y)

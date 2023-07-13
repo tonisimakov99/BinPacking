@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RectangleBinPacking
 {
-    public class DisjointRectCollection
+    internal class DisjointRectCollection
     {
         public List<Rect> rects = new List<Rect>();
 

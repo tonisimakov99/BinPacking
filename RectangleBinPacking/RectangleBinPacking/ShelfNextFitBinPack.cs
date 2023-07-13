@@ -12,21 +12,21 @@
 
         public override InsertResult? Insert(TId id, int width, int height)
         {
-            Node newNode = new Node();
+            InsertResult? newResult = null;
 
             if (((width > height && width < shelfHeight) || (width < height && height > shelfHeight)))
             {
-                newNode.flipped = true;
+                newResult.Rotate = true;
                 var swap = height;
                 height = width;
                 width = swap;
             }
             else
             {
-                newNode.flipped = false;
+                newResult.Rotate = false;
             }
 
-            if (currentX + width > binWidth)
+            if (currentX + width > this.width)
             {
                 currentX = 0;
                 currentY += shelfHeight;
@@ -37,43 +37,38 @@
                     var swap = height;
                     height = width;
                     width = swap;
-                    newNode.flipped = !newNode.flipped;
+                    newResult.Rotate = !newResult.Rotate;
                 }
             }
 
-            if (width > binWidth || currentY + height > binHeight)
+            if (width > this.width || currentY + height > this.height)
             {
                 var swap = height;
                 height = width;
                 width = swap;
-                newNode.flipped = !newNode.flipped;
+                newResult.Rotate = !newResult.Rotate;
             }
 
-            if (width > binWidth || currentY + height > binHeight)
+            if (width > this.width || currentY + height > this.height)
             {
-                return newNode;
+                return newResult;
             }
 
-            newNode.width = width;
-            newNode.height = height;
-            newNode.x = currentX;
-            newNode.y = currentY;
+            newResult.X = currentX;
+            newResult.Y = currentY;
 
             currentX += width;
             shelfHeight = Math.Max(shelfHeight, height);
 
             usedSurfaceArea += width * height;
 
-            return newNode;
+            return newResult;
         }
 
         public float Occupancy()
         {
-            return (float)usedSurfaceArea / (binWidth * binHeight);
+            return (float)usedSurfaceArea / (width * height);
         }
-
-        private int binWidth;
-        private int binHeight;
 
         private int currentX;
         private int currentY;

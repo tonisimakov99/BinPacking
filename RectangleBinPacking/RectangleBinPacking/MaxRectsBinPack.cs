@@ -5,18 +5,12 @@ using System.Diagnostics;
 
 namespace RectangleBinPacking
 {
-    public class MaxRectsBinPack
+    public class MaxRectsBinPack<TId> : Algorithm<TId> where TId : struct
     {
-        public MaxRectsBinPack(int width, int height, bool allowFlip = true)
+        public MaxRectsBinPack(int width, int height, FreeRectChoiceHeuristic method, bool allowFlip = true) : base(width, height)
         {
-            Init(width, height, allowFlip);
-        }
-
-        private void Init(int width, int height, bool allowFlip = true)
-        {
+            this.method = method;
             binAllowFlip = allowFlip;
-            binWidth = width;
-            binHeight = height;
 
             Rect n = new Rect();
             n.x = 0;
@@ -30,38 +24,35 @@ namespace RectangleBinPacking
             freeRectangles.Add(n);
         }
 
-        public Rect Insert(int width, int height, FreeRectChoiceHeuristic method)
+        public override InsertResult? Insert(TId id, int width, int height)
         {
-            Rect newNode = new Rect();
+            InsertResult? newResult = null;
             int score1 = int.MaxValue;
             int score2 = int.MaxValue;
             switch (method)
             {
                 case FreeRectChoiceHeuristic.RectBestShortSideFit:
-                    newNode = FindPositionForNewNodeBestShortSideFit(width, height, ref score1, ref score2);
+                    newResult = FindPositionForNewNodeBestShortSideFit(width, height, ref score1, ref score2);
                     break;
                 case FreeRectChoiceHeuristic.RectBottomLeftRule:
-                    newNode = FindPositionForNewNodeBottomLeft(width, height, ref score1, ref score2);
+                    newResult = FindPositionForNewNodeBottomLeft(width, height, ref score1, ref score2);
                     break;
                 case FreeRectChoiceHeuristic.RectContactPointRule:
-                    newNode = FindPositionForNewNodeContactPoint(width, height, ref score1);
+                    newResult = FindPositionForNewNodeContactPoint(width, height, ref score1);
                     break;
                 case FreeRectChoiceHeuristic.RectBestLongSideFit:
-                    newNode = FindPositionForNewNodeBestLongSideFit(width, height, ref score2, ref score1);
+                    newResult = FindPositionForNewNodeBestLongSideFit(width, height, ref score2, ref score1);
                     break;
                 case FreeRectChoiceHeuristic.RectBestAreaFit:
-                    newNode = FindPositionForNewNodeBestAreaFit(width, height, ref score1, ref score2);
+                    newResult = FindPositionForNewNodeBestAreaFit(width, height, ref score1, ref score2);
                     break;
             }
 
-            if (newNode.height == 0)
-            {
-                return newNode;
-            }
+            if (newResult == null)
+                return null;
+            PlaceRect(newResult, width, height);
 
-            PlaceRect(newNode);
-
-            return newNode;
+            return newResult;
         }
 
         public double Occupancy()
@@ -72,12 +63,10 @@ namespace RectangleBinPacking
                 usedSurfaceArea += usedRectangles[i].width * usedRectangles[i].height;
             }
 
-            return (double)usedSurfaceArea / (binWidth * binHeight);
+            return (double)usedSurfaceArea / (width * height);
         }
 
-        private int binWidth;
-        private int binHeight;
-
+        private readonly FreeRectChoiceHeuristic method;
         private bool binAllowFlip;
 
         private int newFreeRectanglesLastSize;
@@ -86,45 +75,11 @@ namespace RectangleBinPacking
         private List<Rect> usedRectangles = new List<Rect>();
         private List<Rect> freeRectangles = new List<Rect>();
 
-        private Rect ScoreRect(int width, int height, FreeRectChoiceHeuristic method, ref int score1, ref int score2)
-        {
-            Rect newNode = new Rect();
-            score1 = int.MaxValue;
-            score2 = int.MaxValue;
-            switch (method)
-            {
-                case FreeRectChoiceHeuristic.RectBestShortSideFit:
-                    newNode = FindPositionForNewNodeBestShortSideFit(width, height, ref score1, ref score2);
-                    break;
-                case FreeRectChoiceHeuristic.RectBottomLeftRule:
-                    newNode = FindPositionForNewNodeBottomLeft(width, height, ref score1, ref score2);
-                    break;
-                case FreeRectChoiceHeuristic.RectContactPointRule:
-                    newNode = FindPositionForNewNodeContactPoint(width, height, ref score1);
-                    score1 = -score1; 
-                    break;
-                case FreeRectChoiceHeuristic.RectBestLongSideFit:
-                    newNode = FindPositionForNewNodeBestLongSideFit(width, height, ref score2, ref score1);
-                    break;
-                case FreeRectChoiceHeuristic.RectBestAreaFit:
-                    newNode = FindPositionForNewNodeBestAreaFit(width, height, ref score1, ref score2);
-                    break;
-            }
-
-            if (newNode.height == 0)
-            {
-                score1 = int.MaxValue;
-                score2 = int.MaxValue;
-            }
-
-            return newNode;
-        }
-
-        private void PlaceRect(Rect node)
+        private void PlaceRect(InsertResult result, int width, int height)
         {
             for (int i = 0; i < freeRectangles.Count;)
             {
-                if (SplitFreeNode(freeRectangles[i], node))
+                if (SplitFreeNode(freeRectangles[i], result, width, height))
                 {
                     freeRectangles[i] = freeRectangles[freeRectangles.Count - 1];
                     freeRectangles.RemoveAt(freeRectangles.Count - 1);
@@ -137,7 +92,7 @@ namespace RectangleBinPacking
 
             PruneFreeList();
 
-            usedRectangles.Add(node);
+            usedRectangles.Add(new Rect() { x = result.X, y = result.Y, height = height, width = width });
         }
 
         private static int CommonIntervalLength(int i1start, int i1end, int i2start, int i2end)
@@ -153,11 +108,11 @@ namespace RectangleBinPacking
         {
             int score = 0;
 
-            if (x == 0 || x + width == binWidth)
+            if (x == 0 || x + width == width)
             {
                 score += height;
             }
-            if (y == 0 || y + height == binHeight)
+            if (y == 0 || y + height == height)
             {
                 score += width;
             }
@@ -176,9 +131,9 @@ namespace RectangleBinPacking
             return score;
         }
 
-        private Rect FindPositionForNewNodeBottomLeft(int width, int height, ref int bestY, ref int bestX)
+        private InsertResult? FindPositionForNewNodeBottomLeft(int width, int height, ref int bestY, ref int bestX)
         {
-            Rect bestNode = new Rect();
+            InsertResult? bestResult = null;
 
             bestY = int.MaxValue;
             bestX = int.MaxValue;
@@ -190,10 +145,8 @@ namespace RectangleBinPacking
                     int topSideY = freeRectangles[i].y + height;
                     if (topSideY < bestY || (topSideY == bestY && freeRectangles[i].x < bestX))
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = width;
-                        bestNode.height = height;
+                        bestResult.X = freeRectangles[i].x;
+                        bestResult.Y = freeRectangles[i].y;
                         bestY = topSideY;
                         bestX = freeRectangles[i].x;
                     }
@@ -203,22 +156,20 @@ namespace RectangleBinPacking
                     int topSideY = freeRectangles[i].y + width;
                     if (topSideY < bestY || (topSideY == bestY && freeRectangles[i].x < bestX))
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = height;
-                        bestNode.height = width;
+                        bestResult.X = freeRectangles[i].x;
+                        bestResult.Y = freeRectangles[i].y;
                         bestY = topSideY;
                         bestX = freeRectangles[i].x;
                     }
                 }
             }
 
-            return bestNode;
+            return bestResult;
         }
 
-        private Rect FindPositionForNewNodeBestShortSideFit(int width, int height, ref int bestShortSideFit, ref int bestLongSideFit)
+        private InsertResult? FindPositionForNewNodeBestShortSideFit(int width, int height, ref int bestShortSideFit, ref int bestLongSideFit)
         {
-            Rect bestNode = new Rect();
+            InsertResult? bestResult = null;
 
             bestShortSideFit = int.MaxValue;
             bestLongSideFit = int.MaxValue;
@@ -234,10 +185,8 @@ namespace RectangleBinPacking
 
                     if (shortSideFit < bestShortSideFit || (shortSideFit == bestShortSideFit && longSideFit < bestLongSideFit))
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = width;
-                        bestNode.height = height;
+                        bestResult.X = freeRectangles[i].x;
+                        bestResult.Y = freeRectangles[i].y;
                         bestShortSideFit = shortSideFit;
                         bestLongSideFit = longSideFit;
                     }
@@ -252,22 +201,20 @@ namespace RectangleBinPacking
 
                     if (flippedShortSideFit < bestShortSideFit || (flippedShortSideFit == bestShortSideFit && flippedLongSideFit < bestLongSideFit))
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = height;
-                        bestNode.height = width;
+                        bestResult.X = freeRectangles[i].x;
+                        bestResult.Y = freeRectangles[i].y;
                         bestShortSideFit = flippedShortSideFit;
                         bestLongSideFit = flippedLongSideFit;
                     }
                 }
             }
 
-            return bestNode;
+            return bestResult;
         }
 
-        private Rect FindPositionForNewNodeBestLongSideFit(int width, int height, ref int bestShortSideFit, ref int bestLongSideFit)
+        private InsertResult? FindPositionForNewNodeBestLongSideFit(int width, int height, ref int bestShortSideFit, ref int bestLongSideFit)
         {
-            Rect bestNode = new Rect();
+            InsertResult? bestNode = null;
 
             bestShortSideFit = int.MaxValue;
             bestLongSideFit = int.MaxValue;
@@ -283,10 +230,8 @@ namespace RectangleBinPacking
 
                     if (longSideFit < bestLongSideFit || (longSideFit == bestLongSideFit && shortSideFit < bestShortSideFit))
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = width;
-                        bestNode.height = height;
+                        bestNode.X = freeRectangles[i].x;
+                        bestNode.Y = freeRectangles[i].y;
                         bestShortSideFit = shortSideFit;
                         bestLongSideFit = longSideFit;
                     }
@@ -301,10 +246,8 @@ namespace RectangleBinPacking
 
                     if (longSideFit < bestLongSideFit || (longSideFit == bestLongSideFit && shortSideFit < bestShortSideFit))
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = height;
-                        bestNode.height = width;
+                        bestNode.X = freeRectangles[i].x;
+                        bestNode.Y = freeRectangles[i].y;
                         bestShortSideFit = shortSideFit;
                         bestLongSideFit = longSideFit;
                     }
@@ -314,9 +257,9 @@ namespace RectangleBinPacking
             return bestNode;
         }
 
-        private Rect FindPositionForNewNodeBestAreaFit(int width, int height, ref int bestAreaFit, ref int bestShortSideFit)
+        private InsertResult? FindPositionForNewNodeBestAreaFit(int width, int height, ref int bestAreaFit, ref int bestShortSideFit)
         {
-            Rect bestNode = new Rect();
+            InsertResult? bestNode = null;
 
             bestAreaFit = int.MaxValue;
             bestShortSideFit = int.MaxValue;
@@ -333,10 +276,8 @@ namespace RectangleBinPacking
 
                     if (areaFit < bestAreaFit || (areaFit == bestAreaFit && shortSideFit < bestShortSideFit))
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = width;
-                        bestNode.height = height;
+                        bestNode.X = freeRectangles[i].x;
+                        bestNode.Y = freeRectangles[i].y;
                         bestShortSideFit = shortSideFit;
                         bestAreaFit = areaFit;
                     }
@@ -350,10 +291,8 @@ namespace RectangleBinPacking
 
                     if (areaFit < bestAreaFit || (areaFit == bestAreaFit && shortSideFit < bestShortSideFit))
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = height;
-                        bestNode.height = width;
+                        bestNode.X = freeRectangles[i].x;
+                        bestNode.Y = freeRectangles[i].y;
                         bestShortSideFit = shortSideFit;
                         bestAreaFit = areaFit;
                     }
@@ -363,9 +302,9 @@ namespace RectangleBinPacking
             return bestNode;
         }
 
-        private Rect FindPositionForNewNodeContactPoint(int width, int height, ref int bestContactScore)
+        private InsertResult? FindPositionForNewNodeContactPoint(int width, int height, ref int bestContactScore)
         {
-            Rect bestNode = new Rect();
+            InsertResult? bestNode = null;
 
             bestContactScore = -1;
 
@@ -376,10 +315,8 @@ namespace RectangleBinPacking
                     int score = ContactPointScoreNode(freeRectangles[i].x, freeRectangles[i].y, width, height);
                     if (score > bestContactScore)
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = width;
-                        bestNode.height = height;
+                        bestNode.X = freeRectangles[i].x;
+                        bestNode.Y = freeRectangles[i].y;
                         bestContactScore = score;
                     }
                 }
@@ -388,10 +325,8 @@ namespace RectangleBinPacking
                     int score = ContactPointScoreNode(freeRectangles[i].x, freeRectangles[i].y, height, width);
                     if (score > bestContactScore)
                     {
-                        bestNode.x = freeRectangles[i].x;
-                        bestNode.y = freeRectangles[i].y;
-                        bestNode.width = height;
-                        bestNode.height = width;
+                        bestNode.X = freeRectangles[i].x;
+                        bestNode.Y = freeRectangles[i].y;
                         bestContactScore = score;
                     }
                 }
@@ -426,47 +361,47 @@ namespace RectangleBinPacking
             newFreeRectangles.Add(newFreeRect);
         }
 
-        private bool SplitFreeNode(Rect freeNode, Rect usedNode)
+        private bool SplitFreeNode(Rect freeNode, InsertResult result, int width, int height)
         {
-            if (usedNode.x >= freeNode.x + freeNode.width || usedNode.x + usedNode.width <= freeNode.x || usedNode.y >= freeNode.y + freeNode.height || usedNode.y + usedNode.height <= freeNode.y)
+            if (result.X >= freeNode.x + freeNode.width || result.X + width <= freeNode.x || result.Y >= freeNode.y + freeNode.height || result.Y + height <= freeNode.y)
             {
                 return false;
             }
 
             newFreeRectanglesLastSize = newFreeRectangles.Count;
 
-            if (usedNode.x < freeNode.x + freeNode.width && usedNode.x + usedNode.width > freeNode.x)
+            if (result.X < freeNode.x + freeNode.width && result.X + width > freeNode.x)
             {
-                if (usedNode.y > freeNode.y && usedNode.y < freeNode.y + freeNode.height)
+                if (result.Y > freeNode.y && result.Y < freeNode.y + freeNode.height)
                 {
                     Rect newNode = freeNode;
-                    newNode.height = usedNode.y - newNode.y;
+                    newNode.height = result.Y - newNode.y;
                     InsertNewFreeRectangle(newNode);
                 }
 
-                if (usedNode.y + usedNode.height < freeNode.y + freeNode.height)
+                if (result.Y + height < freeNode.y + freeNode.height)
                 {
                     Rect newNode = freeNode;
-                    newNode.y = usedNode.y + usedNode.height;
-                    newNode.height = freeNode.y + freeNode.height - (usedNode.y + usedNode.height);
+                    newNode.y = result.Y + height;
+                    newNode.height = freeNode.y + freeNode.height - (result.Y + height);
                     InsertNewFreeRectangle(newNode);
                 }
             }
 
-            if (usedNode.y < freeNode.y + freeNode.height && usedNode.y + usedNode.height > freeNode.y)
+            if (result.Y < freeNode.y + freeNode.height && result.Y + height > freeNode.y)
             {
-                if (usedNode.x > freeNode.x && usedNode.x < freeNode.x + freeNode.width)
+                if (result.X > freeNode.x && result.X < freeNode.x + freeNode.width)
                 {
                     Rect newNode = freeNode;
-                    newNode.width = usedNode.x - newNode.x;
+                    newNode.width = result.X - newNode.x;
                     InsertNewFreeRectangle(newNode);
                 }
 
-                if (usedNode.x + usedNode.width < freeNode.x + freeNode.width)
+                if (result.X + width < freeNode.x + freeNode.width)
                 {
                     Rect newNode = freeNode;
-                    newNode.x = usedNode.x + usedNode.width;
-                    newNode.width = freeNode.x + freeNode.width - (usedNode.x + usedNode.width);
+                    newNode.x = result.X + width;
+                    newNode.width = freeNode.x + freeNode.width - (result.X + width);
                     InsertNewFreeRectangle(newNode);
                 }
             }
