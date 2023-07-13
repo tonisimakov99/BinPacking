@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33801.468
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RectangleBinPacking", "RectangleBinPacking\RectangleBinPacking.csproj", "{648563D1-92C9-4B8A-8A50-945864F888D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RectangleBinPacking", "RectangleBinPacking\RectangleBinPacking.csproj", "{648563D1-92C9-4B8A-8A50-945864F888D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RectangleBinPacking.DrawerDemo", "RectangleBinPacking.DrawerDemo\RectangleBinPacking.DrawerDemo.csproj", "{846124E0-E3B3-44DA-9189-EC920F307DF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RectangleBinPacking.DrawerDemo", "RectangleBinPacking.DrawerDemo\RectangleBinPacking.DrawerDemo.csproj", "{846124E0-E3B3-44DA-9189-EC920F307DF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RectangleBinPacking.Tests", "RectangleBinPacking.Tests\RectangleBinPacking.Tests.csproj", "{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{846124E0-E3B3-44DA-9189-EC920F307DF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{846124E0-E3B3-44DA-9189-EC920F307DF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{846124E0-E3B3-44DA-9189-EC920F307DF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

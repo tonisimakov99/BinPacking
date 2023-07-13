@@ -25,11 +25,16 @@ namespace RectangleBinPacking
 
         public override InsertResult? Insert(TId id, int width, int height)
         {
-            InsertResult? newResult = null;
-
             if (useWasteMap)
             {
-                newResult = wasteMap.Insert(id, width, height);
+                var result = wasteMap.Insert(id, width, height);
+                if (result == null)
+                    return null;
+                else
+                {
+                    usedSurfaceArea += width * height;
+                    return result;
+                }
             }
 
             switch (method)
@@ -37,9 +42,7 @@ namespace RectangleBinPacking
                 case ShelfChoiceHeuristic.ShelfNextFit:
                     if (FitsOnShelf(shelves[shelves.Count - 1], width, height, true))
                     {
-                        AddToShelf(shelves[shelves.Count - 1], width, height, newResult);
-
-                        return newResult;
+                        return AddToShelf(shelves[shelves.Count - 1], width, height);
                     }
                     break;
                 case ShelfChoiceHeuristic.ShelfFirstFit:
@@ -47,9 +50,7 @@ namespace RectangleBinPacking
                     {
                         if (FitsOnShelf(shelves[i], width, height, i == shelves.Count - 1))
                         {
-                            AddToShelf(shelves[i], width, height, newResult);
-
-                            return newResult;
+                            return AddToShelf(shelves[i], width, height);
                         }
                     }
                     break;
@@ -74,8 +75,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newResult);
-                            return newResult;
+                            return AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -100,8 +100,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newResult);
-                            return newResult;
+                            return AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -128,8 +127,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newResult);
-                            return newResult;
+                            return AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -156,8 +154,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newResult);
-                            return newResult;
+                            return AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -184,8 +181,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            AddToShelf(bestShelf, width, height, newResult);
-                            return newResult;
+                            return AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -207,12 +203,10 @@ namespace RectangleBinPacking
                 }
                 StartNewShelf(height);
                 Debug.Assert(FitsOnShelf(shelves[shelves.Count - 1], width, height, true));
-                AddToShelf(shelves[shelves.Count - 1], width, height, newResult);
-
-                return newResult;
+                return AddToShelf(shelves[shelves.Count - 1], width, height);
             }
 
-            return newResult;
+            return null;
         }
 
         public float Occupancy()
@@ -298,8 +292,9 @@ namespace RectangleBinPacking
             }
         }
 
-        private void AddToShelf(Shelf shelf, int width, int height, InsertResult newResult)
+        private InsertResult? AddToShelf(Shelf shelf, int width, int height)
         {
+            InsertResult? newResult = new InsertResult();
             Debug.Assert(FitsOnShelf(shelf, width, height, true));
 
             RotateToShelf(shelf, ref width, ref height);
@@ -315,6 +310,7 @@ namespace RectangleBinPacking
             Debug.Assert(shelf.height <= height);
 
             usedSurfaceArea += width * height;
+            return newResult;
         }
 
         private bool CanStartNewShelf(int height)

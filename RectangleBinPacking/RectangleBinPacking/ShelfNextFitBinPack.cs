@@ -1,4 +1,6 @@
-﻿namespace RectangleBinPacking
+﻿using System;
+
+namespace RectangleBinPacking
 {
     public class ShelfNextFitBinPack<TId> : Algorithm<TId> where TId : struct
     {
