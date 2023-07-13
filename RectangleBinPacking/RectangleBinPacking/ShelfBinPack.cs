@@ -36,7 +36,18 @@ namespace RectangleBinPacking
                     return result;
                 }
             }
+            if (method == ShelfChoiceHeuristic.ShelfNextFit)
+            {
 
+            }
+            else if (method == ShelfChoiceHeuristic.ShelfFirstFit)
+            {
+
+            }
+            else
+            {
+
+            }
             switch (method)
             {
                 case ShelfChoiceHeuristic.ShelfNextFit:
@@ -304,10 +315,10 @@ namespace RectangleBinPacking
             shelf.usedRectangles.Add(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height });
 
             shelf.currentX += width;
-            Debug.Assert(shelf.currentX <= width);
+            Debug.Assert(shelf.currentX <= this.width);
 
             shelf.height = Math.Max(shelf.height, height);
-            Debug.Assert(shelf.height <= height);
+            Debug.Assert(shelf.height <= this.height);
 
             usedSurfaceArea += width * height;
             return newResult;
