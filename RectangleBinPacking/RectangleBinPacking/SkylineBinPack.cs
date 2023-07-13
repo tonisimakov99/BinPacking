@@ -7,7 +7,7 @@ namespace RectangleBinPacking
 {
     public class SkylineBinPack<TId> : Algorithm<TId> where TId : struct
     {
-        public SkylineBinPack(int width, int height, bool useWasteMap, LevelChoiceHeuristic method) :base(width, height)
+        public SkylineBinPack(int width, int height, bool useWasteMap, LevelChoiceHeuristic method) : base(width, height)
         {
             this.useWasteMap = useWasteMap;
             this.method = method;
@@ -26,24 +26,24 @@ namespace RectangleBinPacking
 
             if (useWasteMap)
             {
-                wasteMap = new GuillotineBinPack(width, height);
-                wasteMap.GetFreeRectangles().Clear();
+                wasteMap = new GuillotineBinPack<TId>(width, height, true, FreeRectChoiceHeuristic.RectBestShortSideFit, GuillotineSplitHeuristic.SplitMaximizeArea);
+                //wasteMap.GetFreeRectangles().Clear();
             }
         }
 
         public override InsertResult? Insert(TId id, int width, int height)
         {
-            Rect node = wasteMap.Insert(width, height, true, FreeRectChoiceHeuristic.RectBestShortSideFit, GuillotineSplitHeuristic.SplitMaximizeArea);
+            var insertResult = wasteMap.Insert(id, width, height);
 #if DEBUG
-            Debug.Assert(disjointRects.Disjoint(node));
+            Debug.Assert(disjointRects.Disjoint(new Rect() { x = insertResult.X, y = insertResult.Y, height = height, width = width }));
 #endif
-            if (node.height != 0)
+            if (insertResult.height != 0)
             {
                 Rect newNode = new Rect();
-                newNode.x = node.x;
-                newNode.y = node.y;
-                newNode.width = node.width;
-                newNode.height = node.height;
+                newNode.x = insertResult.x;
+                newNode.y = insertResult.y;
+                newNode.width = insertResult.width;
+                newNode.height = insertResult.height;
                 usedSurfaceArea += width * height;
 #if DEBUG
                 Debug.Assert(disjointRects.Disjoint(newNode));
@@ -60,7 +60,7 @@ namespace RectangleBinPacking
                     return InsertMinWaste(width, height);
                 default:
                     Debug.Assert(false);
-                    return node;
+                    return insertResult;
             }
         }
 
@@ -88,7 +88,7 @@ namespace RectangleBinPacking
 
         private bool useWasteMap;
         private readonly LevelChoiceHeuristic method;
-        private GuillotineBinPack wasteMap;
+        private GuillotineBinPack<TId> wasteMap;
 
         private InsertResult? InsertBottomLeft(int width, int height)
         {

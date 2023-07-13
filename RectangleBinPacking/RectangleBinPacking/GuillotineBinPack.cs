@@ -62,15 +62,15 @@ namespace RectangleBinPacking
             return (float)usedSurfaceArea / (width * height);
         }
 
-        public List<Rect> GetFreeRectangles()
-        {
-            return new List<Rect>(freeRectangles);
-        }
+        //public List<Rect> GetFreeRectangles()
+        //{
+        //    return new List<Rect>(freeRectangles);
+        //}
 
-        public List<Rect> GetUsedRectangles()
-        {
-            return new List<Rect>(usedRectangles);
-        }
+        //public List<Rect> GetUsedRectangles()
+        //{
+        //    return new List<Rect>(usedRectangles);
+        //}
 
         public void MergeFreeList()
         {
