@@ -20,9 +20,12 @@ namespace RectangleBinPacking.DrawerDemo
         public MainWindow()
         {
             InitializeComponent();
-            //foreach (var value in Enum.GetValues<ShelfMode>())
-            //    this.algorithmComboBox.Items.Add(value);
-            //this.algorithmComboBox.SelectedIndex = 0;
+
+            var algoTypes = Assembly.GetAssembly(typeof(Algorithm<int>)).GetTypes().Where(t => t.BaseType.Name.Contains("Algorithm"));
+
+            foreach (var value in algoTypes)
+                this.algorithmComboBox.Items.Add(value);
+            this.algorithmComboBox.SelectedIndex = 1;
             ResetState();
         }
 
@@ -58,6 +61,19 @@ namespace RectangleBinPacking.DrawerDemo
             }
         }
 
+        private Algorithm<int> GetAlgo(Type type, int size)
+        {
+            if (type.Name == typeof(MaxRectsBinPack<int>).Name)
+            {
+                return new MaxRectsBinPack<int>(size, size, FreeRectChoiceHeuristic.RectBestAreaFit, true);
+            }
+            else if (type.Name == typeof(ShelfBinPack<int>).Name)
+            {
+                return new ShelfBinPack<int>(size, size, false, ShelfChoiceHeuristic.ShelfNextFit);
+            }
+            throw new Exception("Not supported");
+        }
+
 
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
@@ -67,8 +83,8 @@ namespace RectangleBinPacking.DrawerDemo
         {
             var size = int.Parse(this.Size.Text);
             RectsCanv.Children.Clear();
+            algorithm = GetAlgo((Type)algorithmComboBox.SelectedItem, size);
 
-            algorithm = new  ShelfBinPack<int>(size, size, false, ShelfChoiceHeuristic.ShelfNextFit);
             var rect = new Rectangle();
             rect.Width = size;
             rect.Height = size;

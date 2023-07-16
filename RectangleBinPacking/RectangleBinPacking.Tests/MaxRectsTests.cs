@@ -1,14 +1,14 @@
-﻿
-using NUnit.Framework;
-using NUnit.Framework.Constraints;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RectangleBinPacking.Tests
 {
     [TestFixture]
-    public class Tests
+    public class MaxRectsTests
     {
         private (int x, int y) binSize = (40, 40);
         private readonly List<((int width, int height) source, (int x, int y) result)> rects =
@@ -22,18 +22,10 @@ namespace RectangleBinPacking.Tests
                 ((10, 15), (10, 15)),
                 ((10, 12), (25, 15))
             };
-
-        [OneTimeSetUp]
-        public void Setup()
-        {
-
-        }
-
         [Test]
-        public void ShelfBinPackCorrectTest()
+        public void MaxRectsBinPackCorrectTest()
         {
-            var shelfBinPack = new ShelfBinPack<int>(binSize.x, binSize.y, false, ShelfChoiceHeuristic.ShelfNextFit);
-
+            var maxRectsBinPack = new MaxRectsBinPack<int>(binSize.x, binSize.y, FreeRectChoiceHeuristic.RectBestAreaFit, true);
             var rectsSources = rects.Select(t => t.source).ToArray();
             var rectsExpected = rects.Select(t => t.result).ToArray();
 
@@ -41,7 +33,7 @@ namespace RectangleBinPacking.Tests
 
             for (var i = 0; i != rectsSources.Length; i++)
             {
-                var result = shelfBinPack.Insert(i, rectsSources[i].width, rectsSources[i].height);
+                var result = maxRectsBinPack.Insert(i, rectsSources[i].width, rectsSources[i].height);
                 Assert.That(result, Is.Not.Null, "Результат работы с индексом {0} был null", i);
                 rectsActual.Add((result.X, result.Y));
             }
