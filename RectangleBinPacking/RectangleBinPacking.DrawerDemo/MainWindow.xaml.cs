@@ -15,13 +15,14 @@ namespace RectangleBinPacking.DrawerDemo
     public partial class MainWindow : Window
     {
 
-        private PackingAlgorithm shelfAlgorithm { get; set; }
+        private Algorithm<int> algorithm { get; set; }
+        private int index;
         public MainWindow()
         {
             InitializeComponent();
-            foreach (var value in Enum.GetValues<ShelfMode>())
-                this.algorithmComboBox.Items.Add(value);
-            this.algorithmComboBox.SelectedIndex = 0;
+            //foreach (var value in Enum.GetValues<ShelfMode>())
+            //    this.algorithmComboBox.Items.Add(value);
+            //this.algorithmComboBox.SelectedIndex = 0;
             ResetState();
         }
 
@@ -29,16 +30,16 @@ namespace RectangleBinPacking.DrawerDemo
         {
             var size = new System.Numerics.Vector2(Random.Shared.Next(10, int.Parse(MaxWidth.Text)), Random.Shared.Next(10, int.Parse(MaxHeight.Text)));
             Info.Content = size;
-            var result = shelfAlgorithm.Insert(size);
+            var result = algorithm.Insert(index, (int)size.X, (int)size.Y);
             if (result != null)
             {
                 Info.Foreground = Brushes.Black;
                 var rect = new Rectangle();
-                Canvas.SetLeft(rect, result.Value.Position.X);
-                Canvas.SetTop(rect, result.Value.Position.Y);
-                if (result.Value.Rotate)
+                Canvas.SetLeft(rect, result.X);
+                Canvas.SetTop(rect, result.Y);
+                if (result.Rotate)
                     rect.Stroke = new SolidColorBrush(Colors.Green);
-                if (result.Value.Rotate)
+                if (result.Rotate)
                 {
                     rect.Width = size.Y;
                     rect.Height = size.X;
@@ -67,7 +68,7 @@ namespace RectangleBinPacking.DrawerDemo
             var size = int.Parse(this.Size.Text);
             RectsCanv.Children.Clear();
 
-            shelfAlgorithm = new ShelfAlg(new System.Numerics.Vector2(size, size), this.Rotate.IsChecked.Value, (ShelfMode)algorithmComboBox.SelectedValue);
+            algorithm = new  ShelfBinPack<int>(size, size, false, ShelfChoiceHeuristic.ShelfNextFit);
             var rect = new Rectangle();
             rect.Width = size;
             rect.Height = size;

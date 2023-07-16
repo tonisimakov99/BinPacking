@@ -25,35 +25,23 @@ namespace RectangleBinPacking
 
         public override InsertResult? Insert(TId id, int width, int height)
         {
+            InsertResult? result = null;
             if (useWasteMap)
             {
-                var result = wasteMap.Insert(id, width, height);
-                if (result == null)
-                    return null;
-                else
+                result = wasteMap.Insert(id, width, height);
+                if (result != null)
                 {
                     usedSurfaceArea += width * height;
                     return result;
                 }
             }
-            if (method == ShelfChoiceHeuristic.ShelfNextFit)
-            {
 
-            }
-            else if (method == ShelfChoiceHeuristic.ShelfFirstFit)
-            {
-
-            }
-            else
-            {
-
-            }
             switch (method)
             {
                 case ShelfChoiceHeuristic.ShelfNextFit:
                     if (FitsOnShelf(shelves[shelves.Count - 1], width, height, true))
                     {
-                        return AddToShelf(shelves[shelves.Count - 1], width, height);
+                        result = AddToShelf(shelves[shelves.Count - 1], width, height);
                     }
                     break;
                 case ShelfChoiceHeuristic.ShelfFirstFit:
@@ -61,7 +49,7 @@ namespace RectangleBinPacking
                     {
                         if (FitsOnShelf(shelves[i], width, height, i == shelves.Count - 1))
                         {
-                            return AddToShelf(shelves[i], width, height);
+                            result = AddToShelf(shelves[i], width, height);
                         }
                     }
                     break;
@@ -86,7 +74,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            return AddToShelf(bestShelf, width, height);
+                            result = AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -111,7 +99,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            return AddToShelf(bestShelf, width, height);
+                            result = AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -138,7 +126,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            return AddToShelf(bestShelf, width, height);
+                            result = AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -165,7 +153,7 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            return AddToShelf(bestShelf, width, height);
+                            result = AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
@@ -192,32 +180,35 @@ namespace RectangleBinPacking
 
                         if (bestShelf != null)
                         {
-                            return AddToShelf(bestShelf, width, height);
+                            result = AddToShelf(bestShelf, width, height);
                         }
                     }
                     break;
 
             }
 
-            if (width < height && height <= width)
+            if (result == null)
             {
-                var swap = height;
-                height = width;
-                width = swap;
-            }
-
-            if (CanStartNewShelf(height))
-            {
-                if (useWasteMap)
+                if (width < height && height <= width)
                 {
-                    MoveShelfToWasteMap(shelves[shelves.Count - 1]);
+                    var swap = height;
+                    height = width;
+                    width = swap;
                 }
-                StartNewShelf(height);
-                Debug.Assert(FitsOnShelf(shelves[shelves.Count - 1], width, height, true));
-                return AddToShelf(shelves[shelves.Count - 1], width, height);
+
+                if (CanStartNewShelf(height))
+                {
+                    if (useWasteMap)
+                    {
+                        MoveShelfToWasteMap(shelves[shelves.Count - 1]);
+                    }
+                    StartNewShelf(height);
+                    Debug.Assert(FitsOnShelf(shelves[shelves.Count - 1], width, height, true));
+                    result = AddToShelf(shelves[shelves.Count - 1], width, height);
+                }
             }
 
-            return null;
+            return result;
         }
 
         public float Occupancy()
@@ -293,14 +284,16 @@ namespace RectangleBinPacking
             }
         }
 
-        private void RotateToShelf(Shelf shelf, ref int width, ref int height)
+        private bool RotateToShelf(Shelf shelf, ref int width, ref int height)
         {
             if ((width > height && width > this.width - shelf.currentX) || (width > height && width < shelf.height) || (width < height && height > shelf.height && height <= this.width - shelf.currentX))
             {
                 var swap = height;
                 height = width;
                 width = swap;
+                return true;
             }
+            return false;
         }
 
         private InsertResult? AddToShelf(Shelf shelf, int width, int height)
@@ -308,10 +301,11 @@ namespace RectangleBinPacking
             InsertResult? newResult = new InsertResult();
             Debug.Assert(FitsOnShelf(shelf, width, height, true));
 
-            RotateToShelf(shelf, ref width, ref height);
+            var rotate = RotateToShelf(shelf, ref width, ref height);
 
             newResult.X = shelf.currentX;
             newResult.Y = shelf.startY;
+            newResult.Rotate = rotate;
             shelf.usedRectangles.Add(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height });
 
             shelf.currentX += width;
@@ -326,7 +320,7 @@ namespace RectangleBinPacking
 
         private bool CanStartNewShelf(int height)
         {
-            return shelves[shelves.Count - 1].startY + shelves[shelves.Count - 1].height + height <= height;
+            return shelves[shelves.Count - 1].startY + shelves[shelves.Count - 1].height + height <= this.height;
         }
 
         private void StartNewShelf(int startingHeight)

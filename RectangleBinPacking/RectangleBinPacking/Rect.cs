@@ -12,6 +12,10 @@
                 && x + width <= b.x + b.width
                 && y + height <= b.y + b.height;
         }
+        public override string ToString()
+        {
+            return $"X = {x}, Y = {y}, Width = {width}, Height = {height}";
+        }
     }
 }
 
