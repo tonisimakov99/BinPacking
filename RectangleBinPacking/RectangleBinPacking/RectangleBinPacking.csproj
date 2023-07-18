@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<RootNamespace>RectangleBinPacking</RootNamespace>
-		<ImplicitUsings>enable</ImplicitUsings>
+		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Rectangle bin packing problem solver</Description>
 		<PackageProjectUrl>https://github.com/tonisimakov99/RectangleBinPacking</PackageProjectUrl>
