@@ -24,38 +24,44 @@ namespace RectangleBinPacking
             freeRectangles.Add(n);
         }
 
+        private struct SelectResult
+        {
+            public Rect? rect;
+            public bool rotate;
+        }
+
         public override InsertResult? Insert(TId id, int width, int height)
         {
-            (Rect? rect, bool rotate) selectResult = default;
+            SelectResult selectNodeResult = default;
             switch (method)
             {
                 case FreeRectChoiceHeuristic.RectBestShortSideFit:
-                    selectResult = FindPositionForNewNodeBestShortSideFit(width, height);
+                    selectNodeResult = FindPositionForNewNodeBestShortSideFit(width, height);
                     break;
                 case FreeRectChoiceHeuristic.RectBottomLeftRule:
-                    selectResult = FindPositionForNewNodeBottomLeft(width, height);
+                    selectNodeResult = FindPositionForNewNodeBottomLeft(width, height);
                     break;
                 case FreeRectChoiceHeuristic.RectContactPointRule:
-                    selectResult = FindPositionForNewNodeContactPoint(width, height);
+                    selectNodeResult = FindPositionForNewNodeContactPoint(width, height);
                     break;
                 case FreeRectChoiceHeuristic.RectBestLongSideFit:
-                    selectResult = FindPositionForNewNodeBestLongSideFit(width, height);
+                    selectNodeResult = FindPositionForNewNodeBestLongSideFit(width, height);
                     break;
                 case FreeRectChoiceHeuristic.RectBestAreaFit:
-                    selectResult = FindPositionForNewNodeBestAreaFit(width, height);
+                    selectNodeResult = FindPositionForNewNodeBestAreaFit(width, height);
                     break;
             }
 
-            if (selectResult.rect == null)
+            if (selectNodeResult.rect == null)
                 return null;
 
-            PlaceToRect(selectResult.rect, width, height);
+            PlaceToRect(selectNodeResult, width, height);
 
             return new InsertResult()
             {
-                Rotate = selectResult.rotate,
-                X = selectResult.rect.x,
-                Y = selectResult.rect.y,
+                Rotate = selectNodeResult.rotate,
+                X = selectNodeResult.rect.x,
+                Y = selectNodeResult.rect.y,
             };
         }
 
@@ -73,30 +79,21 @@ namespace RectangleBinPacking
         private readonly FreeRectChoiceHeuristic method;
         private bool binAllowFlip;
 
-        private int newFreeRectanglesLastSize;
-        private List<Rect> newFreeRectangles = new List<Rect>();
-
         private List<Rect> usedRectangles = new List<Rect>();
         private List<Rect> freeRectangles = new List<Rect>();
 
-        private void PlaceToRect(Rect result, int width, int height)
+        private void PlaceToRect(SelectResult selectResult, int width, int height)
         {
-            for (int i = 0; i < freeRectangles.Count;)
-            {
-                if (SplitFreeNode(freeRectangles[i], result, width, height))
-                {
-                    freeRectangles[i] = freeRectangles[freeRectangles.Count - 1];
-                    freeRectangles.RemoveAt(freeRectangles.Count - 1);
-                }
-                else
-                {
-                    ++i;
-                }
-            }
+            var splitResult = SplitNode(selectResult, width, height);
 
-            PruneFreeList();
+            PruneFreeList(selectResult.rect);
 
-            usedRectangles.Add(result);
+            freeRectangles.Remove(selectResult.rect);
+
+            freeRectangles.Add(splitResult.newRectOne);
+            freeRectangles.Add(splitResult.newRectTwo);
+
+            usedRectangles.Add(splitResult.used);
         }
 
         private static int CommonIntervalLength(int i1start, int i1end, int i2start, int i2end)
@@ -135,7 +132,7 @@ namespace RectangleBinPacking
             return score;
         }
 
-        private (Rect? rect, bool rotate) FindPositionForNewNodeBottomLeft(int width, int height)
+        private SelectResult FindPositionForNewNodeBottomLeft(int width, int height)
         {
             Rect? bestRect = null;
             var rotate = false;
@@ -167,10 +164,10 @@ namespace RectangleBinPacking
                 }
             }
 
-            return (bestRect, rotate);
+            return new SelectResult() { rect = bestRect, rotate = rotate };
         }
 
-        private (Rect? rect, bool rotate) FindPositionForNewNodeBestShortSideFit(int width, int height)
+        private SelectResult FindPositionForNewNodeBestShortSideFit(int width, int height)
         {
             Rect? bestRect = null;
             var rotate = false;
@@ -211,10 +208,10 @@ namespace RectangleBinPacking
                 }
             }
 
-            return (bestRect, rotate);
+            return new SelectResult() { rect = bestRect, rotate = rotate };
         }
 
-        private (Rect? rect, bool rotate) FindPositionForNewNodeBestLongSideFit(int width, int height)
+        private SelectResult FindPositionForNewNodeBestLongSideFit(int width, int height)
         {
             Rect? bestRect = null;
             var rotate = false;
@@ -255,10 +252,10 @@ namespace RectangleBinPacking
                 }
             }
 
-            return (bestRect, rotate);
+            return new SelectResult() { rect = bestRect, rotate = rotate };
         }
 
-        private (Rect? rect, bool rotate) FindPositionForNewNodeBestAreaFit(int width, int height)
+        private SelectResult FindPositionForNewNodeBestAreaFit(int width, int height)
         {
             Rect? bestRect = null;
             var rotate = false;
@@ -278,6 +275,7 @@ namespace RectangleBinPacking
 
                     if (areaFit < bestAreaFit || (areaFit == bestAreaFit && shortSideFit < bestShortSideFit))
                     {
+                        rotate = false;
                         bestRect = freeRectangles[i];
                         bestShortSideFit = shortSideFit;
                         bestAreaFit = areaFit;
@@ -292,6 +290,7 @@ namespace RectangleBinPacking
 
                     if (areaFit < bestAreaFit || (areaFit == bestAreaFit && shortSideFit < bestShortSideFit))
                     {
+                        rotate = true;
                         bestRect = freeRectangles[i];
                         bestShortSideFit = shortSideFit;
                         bestAreaFit = areaFit;
@@ -299,10 +298,10 @@ namespace RectangleBinPacking
                 }
             }
 
-            return (bestRect, rotate);
+            return new SelectResult() { rect = bestRect, rotate = rotate };
         }
 
-        private (Rect? rect, bool rotate) FindPositionForNewNodeContactPoint(int width, int height)
+        private SelectResult FindPositionForNewNodeContactPoint(int width, int height)
         {
             Rect? bestRect = null;
             var rotate = false;
@@ -332,116 +331,111 @@ namespace RectangleBinPacking
                 }
             }
 
-            return (bestRect, rotate);
+            return new SelectResult() { rect = bestRect, rotate = rotate };
         }
 
-        private void InsertNewFreeRectangle(Rect newFreeRect)
+        //private void InsertNewFreeRectangle(Rect newFreeRect)
+        //{
+        //    Debug.Assert(newFreeRect.width > 0);
+        //    Debug.Assert(newFreeRect.height > 0);
+
+        //    for (int i = 0; i < newFreeRectanglesLastSize;)
+        //    {
+        //        if (newFreeRect.IsContainedIn(newFreeRectangles[i]))
+        //        {
+        //            return;
+        //        }
+
+        //        if (newFreeRectangles[i].IsContainedIn(newFreeRect))
+        //        {
+        //            newFreeRectangles[i] = newFreeRectangles[--newFreeRectanglesLastSize];
+        //            newFreeRectangles[newFreeRectanglesLastSize] = newFreeRectangles[newFreeRectangles.Count - 1];
+        //            newFreeRectangles.RemoveAt(newFreeRectangles.Count - 1);
+        //        }
+        //        else
+        //        {
+        //            ++i;
+        //        }
+        //    }
+        //    newFreeRectangles.Add(newFreeRect);
+        //}
+
+        private (Rect used, Rect newRectOne, Rect newRectTwo) SplitNode(SelectResult selectResult, int width, int height)
         {
-            Debug.Assert(newFreeRect.width > 0);
-            Debug.Assert(newFreeRect.height > 0);
-
-            for (int i = 0; i < newFreeRectanglesLastSize;)
+            if (selectResult.rotate)
             {
-                if (newFreeRect.IsContainedIn(newFreeRectangles[i]))
+                var one = new Rect()
                 {
-                    return;
-                }
+                    x = selectResult.rect.x + height,
+                    y = selectResult.rect.y,
+                    width = selectResult.rect.width - height,
+                    height = selectResult.rect.height
+                };
 
-                if (newFreeRectangles[i].IsContainedIn(newFreeRect))
+                var two = new Rect()
                 {
-                    newFreeRectangles[i] = newFreeRectangles[--newFreeRectanglesLastSize];
-                    newFreeRectangles[newFreeRectanglesLastSize] = newFreeRectangles[newFreeRectangles.Count - 1];
-                    newFreeRectangles.RemoveAt(newFreeRectangles.Count - 1);
-                }
-                else
-                {
-                    ++i;
-                }
+                    x = selectResult.rect.x,
+                    y = selectResult.rect.y + width,
+                    width = selectResult.rect.width,
+                    height = selectResult.rect.height - width
+                };
+
+                return (new Rect() { x = selectResult.rect.x, y = selectResult.rect.y, width = height, height = width }, one, two);
             }
-            newFreeRectangles.Add(newFreeRect);
+            else
+            {
+                var one = new Rect()
+                {
+                    x = selectResult.rect.x + width,
+                    y = selectResult.rect.y,
+                    width = selectResult.rect.width - width,
+                    height = selectResult.rect.height
+                };
+
+                var two = new Rect()
+                {
+                    x = selectResult.rect.x,
+                    y = selectResult.rect.y + height,
+                    width = selectResult.rect.width,
+                    height = selectResult.rect.height - height
+                };
+
+                return (new Rect() { x = selectResult.rect.x, y = selectResult.rect.y, width = width, height = height }, one, two);
+            }
         }
 
-        private bool SplitFreeNode(Rect freeNode, int width, int height)
+        private void PruneFreeList(Rect selectedRect)
         {
-            if (result.x >= freeNode.x + freeNode.width || result.y + width <= freeNode.x || result.y >= freeNode.y + freeNode.height || result.y + height <= freeNode.y)
+            for (var i = 0; i != freeRectangles.Count; i++)
             {
-                return false;
-            }
-
-            newFreeRectanglesLastSize = newFreeRectangles.Count;
-
-            if (result.x < freeNode.x + freeNode.width && result.x + width > freeNode.x)
-            {
-                if (result.y > freeNode.y && result.y < freeNode.y + freeNode.height)
+                if (selectedRect.x + selectedRect.width == freeRectangles[i].x + freeRectangles[i].width &&
+                    selectedRect.y + selectedRect.height == freeRectangles[i].y + freeRectangles[i].height &&
+                    selectedRect != freeRectangles[i])
                 {
-                    Rect newNode = freeNode;
-                    newNode.height = result.Y - newNode.y;
-                    InsertNewFreeRectangle(newNode);
-                }
-
-                if (result.Y + height < freeNode.y + freeNode.height)
-                {
-                    Rect newNode = freeNode;
-                    newNode.y = result.Y + height;
-                    newNode.height = freeNode.y + freeNode.height - (result.Y + height);
-                    InsertNewFreeRectangle(newNode);
-                }
-            }
-
-            if (result.Y < freeNode.y + freeNode.height && result.Y + height > freeNode.y)
-            {
-                if (result.X > freeNode.x && result.X < freeNode.x + freeNode.width)
-                {
-                    Rect newNode = freeNode;
-                    newNode.width = result.X - newNode.x;
-                    InsertNewFreeRectangle(newNode);
-                }
-
-                if (result.X + width < freeNode.x + freeNode.width)
-                {
-                    Rect newNode = freeNode;
-                    newNode.x = result.X + width;
-                    newNode.width = freeNode.x + freeNode.width - (result.X + width);
-                    InsertNewFreeRectangle(newNode);
-                }
-            }
-
-            return true;
-        }
-
-        private void PruneFreeList()
-        {
-            for (int i = 0; i < freeRectangles.Count; ++i)
-            {
-                for (int j = 0; j < newFreeRectangles.Count;)
-                {
-                    if (newFreeRectangles[j].IsContainedIn(freeRectangles[i]))
+                    if (selectedRect.x < freeRectangles[i].x)
                     {
-                        newFreeRectangles[j] = newFreeRectangles[newFreeRectangles.Count - 1];
-                        newFreeRectangles.RemoveAt(newFreeRectangles.Count - 1);
+                        freeRectangles.Add(new Rect()
+                        {
+                            x = freeRectangles[i].x,
+                            y = freeRectangles[i].y,
+                            width = freeRectangles[i].width,
+                            height = freeRectangles[i].height - selectedRect.height
+                        });
                     }
                     else
                     {
-                        Debug.Assert(!freeRectangles[i].IsContainedIn(newFreeRectangles[j]));
-
-                        ++j;
+                        freeRectangles.Add(new Rect()
+                        {
+                            x = freeRectangles[i].x,
+                            y = freeRectangles[i].y,
+                            width = freeRectangles[i].width - selectedRect.width,
+                            height = freeRectangles[i].height
+                        });
                     }
+                    freeRectangles.Remove(freeRectangles[i]);
+                    return;
                 }
             }
-
-            freeRectangles.AddRange(newFreeRectangles);
-            newFreeRectangles.Clear();
-
-#if DEBUG
-            for (int i = 0; i < freeRectangles.Count; ++i)
-            {
-                for (int j = i + 1; j < freeRectangles.Count; ++j)
-                {
-                    Debug.Assert(!freeRectangles[i].IsContainedIn(freeRectangles[j]));
-                    Debug.Assert(!freeRectangles[j].IsContainedIn(freeRectangles[i]));
-                }
-            }
-#endif
         }
     }
 

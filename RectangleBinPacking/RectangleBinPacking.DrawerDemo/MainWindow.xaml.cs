@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +21,45 @@ namespace RectangleBinPacking.DrawerDemo
         private int index;
         public MainWindow()
         {
+            Rects = new ObservableCollection<RectSize>();
+
             InitializeComponent();
+
+            Rects.Add(new RectSize()
+            {
+                Width = 100,
+                Height = 100,
+            });
+            Rects.Add(new RectSize()
+            {
+                Width = 150,
+                Height = 150,
+            });
+            Rects.Add(new RectSize()
+            {
+                Width = 250,
+                Height = 50,
+            });
+            Rects.Add(new RectSize()
+            {
+                Width = 100,
+                Height = 50,
+            });
+            Rects.Add(new RectSize()
+            {
+                Width = 100,
+                Height = 100,
+            });
+            Rects.Add(new RectSize()
+            {
+                Width = 100,
+                Height = 150,
+            });
+            Rects.Add(new RectSize()
+            {
+                Width = 100,
+                Height = 120,
+            });
 
             var algoTypes = Assembly.GetAssembly(typeof(Algorithm<int>)).GetTypes().Where(t => t.BaseType.Name.Contains("Algorithm"));
 
@@ -32,6 +72,11 @@ namespace RectangleBinPacking.DrawerDemo
         private void Next_Click(object sender, RoutedEventArgs e)
         {
             var size = new System.Numerics.Vector2(Random.Shared.Next(10, int.Parse(MaxWidth.Text)), Random.Shared.Next(10, int.Parse(MaxHeight.Text)));
+            AddItem(size);
+
+        }
+        private void AddItem(Vector2 size)
+        {
             Info.Content = size;
             var result = algorithm.Insert(index, (int)size.X, (int)size.Y);
             if (result != null)
@@ -53,6 +98,7 @@ namespace RectangleBinPacking.DrawerDemo
                     rect.Height = size.Y;
                 }
                 rect.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb((byte)Random.Shared.Next(255), (byte)Random.Shared.Next(255), (byte)Random.Shared.Next(255)));
+                
                 RectsCanv.Children.Add(rect);
             }
             else
@@ -90,6 +136,36 @@ namespace RectangleBinPacking.DrawerDemo
             rect.Height = size;
             rect.Stroke = new SolidColorBrush(Colors.Black);
             RectsCanv.Children.Add(rect);
+        }
+
+        private void SetList_Click(object sender, RoutedEventArgs e)
+        {
+            ResetState();
+            foreach (var item in Rects)
+            {
+                AddItem(new Vector2(item.Width, item.Height));
+            }
+        }
+
+        public class RectSize
+        {
+            public int Height { get; set; }
+            public int Width { get; set; }
+        }
+
+        public ObservableCollection<RectSize> Rects { get; set; }
+        private void Add_Click(object sender, RoutedEventArgs e)
+        {
+            Rects.Add(new RectSize()
+            {
+                Height = 0,
+                Width = 0,
+            });
+        }
+
+        private void Rem_Click(object sender, RoutedEventArgs e)
+        {
+            Rects.RemoveAt(Rects.Count - 1);
         }
     }
 }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RectangleBinPacking.DrawerDemo"
         mc:Ignorable="d"
-        Title="MainWindow">
+        Title="MainWindow" Name="win">
     <DockPanel LastChildFill="True">
         <StackPanel Orientation="Vertical" DockPanel.Dock="Left" Width="100">
             <Button x:Name="Reset" Click="Reset_Click">Reset</Button>
@@ -15,6 +15,22 @@
             <ComboBox x:Name="algorithmComboBox"></ComboBox>
             <TextBox x:Name="MaxWidth">30</TextBox>
             <TextBox x:Name="MaxHeight">40</TextBox>
+            <ListBox x:Name="RectsList" ItemsSource="{Binding ElementName=win, Path=Rects}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding Path=Width}" ></TextBox>
+                            <TextBox Text="{Binding Path=Height}" ></TextBox>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="Add" Click="Add_Click">+</Button>
+                <Button x:Name="Rem" Click="Rem_Click">-</Button>
+            </StackPanel>
+            <Button x:Name="SetList" Click="SetList_Click">SetList</Button>
+
             <Label x:Name="Info"></Label>
         </StackPanel>
         <Canvas x:Name="RectsCanv" ></Canvas>
