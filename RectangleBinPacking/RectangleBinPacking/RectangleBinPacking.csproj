@@ -1,10 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>RectangleBinPacking</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>RectangleBinPacking</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Rectangle bin packing problem solver</Description>
+		<PackageProjectUrl>https://github.com/tonisimakov99/RectangleBinPacking</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/tonisimakov99/RectangleBinPacking</RepositoryUrl>
+		<PackageReleaseNotes>Current release: now shelf and max rects only</PackageReleaseNotes>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageTags>Bin;Packing;2D;MaxRects,Shelf,Atlas,Texture</PackageTags>
+	</PropertyGroup>
 
 </Project>
