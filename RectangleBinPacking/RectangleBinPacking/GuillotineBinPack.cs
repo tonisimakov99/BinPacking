@@ -133,6 +133,9 @@ namespace RectangleBinPacking
         private List<Rect> usedRectangles = new List<Rect>();
 
         private List<Rect> freeRectangles = new List<Rect>();
+        private bool merge;
+        private FreeRectChoiceHeuristic rectChoice;
+        private GuillotineSplitHeuristic splitMethod;
 
 #if DEBUG
         private DisjointRectCollection disjointRects = new DisjointRectCollection();

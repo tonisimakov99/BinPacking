@@ -21,6 +21,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\RectangleBinPacking\RectangleBinPacking.csproj" />
+	  <ProjectReference Include="..\RectangleBinPacking\RectangleBinPacking.csproj" />
 	</ItemGroup>
 </Project>
