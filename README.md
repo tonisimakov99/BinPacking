@@ -1,1 +1,1 @@
-# 2D-BinPacking
+# 2D-BinPacking, now shelf packing and max rects only.
