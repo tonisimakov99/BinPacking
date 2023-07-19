@@ -4,6 +4,7 @@ using RectangleBinPacking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,9 +19,10 @@ namespace FontAtlasBuilding
         public const string Numbers = "1234567890";
         public const string PunctuationMarks = "`~!@\"\'$#%^:;&?*().,/\\[]{}";
         private readonly ILogger logger;
+        private readonly float scaleSizeFactor;
         FT_LibraryRec_* libraryRec;
 
-        public FontAtlasBuilder(ILogger logger)
+        public FontAtlasBuilder(ILogger logger, float scaleSizeFactor = 1.02f)
         {
             fixed (FT_LibraryRec_** pointer = &libraryRec)
             {
@@ -29,6 +31,7 @@ namespace FontAtlasBuilding
             }
 
             this.logger = logger;
+            this.scaleSizeFactor = scaleSizeFactor;
         }
 
         public FontAtlas BuildAtlas(byte[] fontData, float size)
@@ -67,47 +70,44 @@ namespace FontAtlasBuilding
             FT.FT_Done_Face(faceRec);
 
             var totalArea = bitmaps.Values.Select(t => t.GetLength(0) * t.GetLength(1)).Aggregate((a, b) => a + b);
-            totalArea = (int)(totalArea * 1.15);
-            var totalSize = (int)Math.Sqrt(totalArea);
-            var maxRectsPacking = new MaxRectsBinPack<int>(totalSize, totalSize, FreeRectChoiceHeuristic.RectBestAreaFit);
+            var totalSize = MathF.Sqrt(totalArea);
+            while (true)
+            {
+                if(TryBuildAtlas(totalSize, bitmaps, out var fontAtlas))
+                {
+                    return fontAtlas;
+                }
+                else
+                {
+                    logger.LogDebug("Retry with size: {size}", totalSize);
+                    totalSize *= scaleSizeFactor;
+                }
+            }
+        }
+
+        private bool TryBuildAtlas(float size, Dictionary<char, byte[,]> bitmaps, out FontAtlas fontAtlas)
+        {
+            fontAtlas = default;
+            var maxRectsPacking = new MaxRectsBinPack<int>((int)size, (int)size, FreeRectChoiceHeuristic.RectBestAreaFit);
             var idx = 0;
             var results = new Dictionary<char, InsertResult>();
             foreach (var key in bitmaps.Keys)
             {
-                var insertResult = maxRectsPacking.Insert(idx, bitmaps[key].GetLength(0), bitmaps[key].GetLength(1)) ?? throw new FontAtlasException($"Не удалось построить атлас шрифта, символ: {key}");
+                var insertResult = maxRectsPacking.Insert(idx, bitmaps[key].GetLength(0), bitmaps[key].GetLength(1));
+                if (insertResult == null)
+                    return false;
                 results.Add(key, insertResult);
                 idx++;
             }
 
-            var fontAtlas = new FontAtlas()
+            fontAtlas = new FontAtlas()
             {
-                Width = totalSize,
-                Height = totalSize,
+                Width = (int)size,
+                Height = (int)size,
                 Data = bitmaps,
                 Positions = results
             };
-            //var strokes = new List<Dictionary<char, byte[,]>>();
-            //var itemIndex = 0;
-            //Dictionary<char, byte[,]>? currentStroke = default;
-            //for (var i = 0; i != alphabet.Length; i++)
-            //{
-            //    if (itemIndex % 10 == 0)
-            //    {
-            //        currentStroke = new Dictionary<char, byte[,]>();
-            //        strokes.Add(currentStroke);
-            //    }
-            //    if (currentStroke != null)
-            //        currentStroke.Add(alphabet[i], bitmaps[alphabet[i]]);
-
-            //    itemIndex++;
-            //}
-
-            //var maxWidth = strokes.Max(t => t.Values.Sum(y => y.GetLength(0)));
-            //var maxHeight = strokes.Max(t => t.Values.Max(y => y.GetLength(1)));
-
-            //fontAtlas.Data = new byte[maxWidth, maxHeight];
-
-            return fontAtlas;
+            return true;
         }
 
         public void Dispose()

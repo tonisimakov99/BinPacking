@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -8,8 +6,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using FontAtlasBuilding;
-using System.Collections;
-using System.Windows.Input;
+using Serilog;
+using Serilog.Extensions.Logging;
 
 namespace RectangleBinPacking.FontDrawer
 {
@@ -21,7 +19,11 @@ namespace RectangleBinPacking.FontDrawer
         FontAtlasBuilder atlasBuilder;
         public MainWindow()
         {
-            var logger = new LoggerFactory().CreateLogger("some");
+            Log.Logger = new LoggerConfiguration()
+                               .MinimumLevel.Debug()
+                               .WriteTo.File("file.log")
+                               .CreateLogger();
+            var logger = new SerilogLoggerFactory(Log.Logger).CreateLogger("Client logger");
             atlasBuilder = new FontAtlasBuilder(logger);
             var fonts = Directory.GetFiles(".").Where(t => t.EndsWith(".ttf"));
             Fonts = new ObservableCollection<Font>();
@@ -35,7 +37,7 @@ namespace RectangleBinPacking.FontDrawer
                 });
             }
             InitializeComponent();
-            FontsComboBox.SelectedIndex = 0;
+            FontsComboBox.SelectedIndex = 1;
             this.Closing += MainWindow_Closing;
             Reset();
         }
