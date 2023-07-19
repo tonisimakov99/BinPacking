@@ -9,11 +9,6 @@ namespace RectangleBinPacking
     {
         public GuillotineBinPack(int width, int height, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod) : base(width, height)
         {
-
-#if DEBUG
-            disjointRects.Clear();
-#endif
-
             usedRectangles.Clear();
 
             Rect n = new Rect();
@@ -44,10 +39,6 @@ namespace RectangleBinPacking
             }
 
             usedRectangles.Add(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height });
-
-#if DEBUG
-            Debug.Assert(disjointRects.Add(new Rect() { x = newResult.X, y = newResult.Y, width = width, height = height }) == true);
-#endif
             return newResult;
         }
 
@@ -137,13 +128,6 @@ namespace RectangleBinPacking
         private FreeRectChoiceHeuristic rectChoice;
         private GuillotineSplitHeuristic splitMethod;
 
-#if DEBUG
-        private DisjointRectCollection disjointRects = new DisjointRectCollection();
-        private readonly bool merge;
-        private readonly FreeRectChoiceHeuristic rectChoice;
-        private readonly GuillotineSplitHeuristic splitMethod;
-#endif
-
         private InsertResult? FindPositionForNewNode(int width, int height, FreeRectChoiceHeuristic rectChoice, ref int nodeIndex)
         {
             var bestResult = new InsertResult();
@@ -158,9 +142,7 @@ namespace RectangleBinPacking
                     bestResult.Y = freeRectangles[i].y;
                     bestScore = int.MinValue;
                     nodeIndex = (int)i;
-#if DEBUG
-                    Debug.Assert(disjointRects.Disjoint(new Rect() { x = bestResult.X, y = bestResult.Y, height = height, width = width }));
-#endif
+
                     break;
                 }
                 else if (height == freeRectangles[i].width && width == freeRectangles[i].height)
@@ -169,9 +151,7 @@ namespace RectangleBinPacking
                     bestResult.X = freeRectangles[i].y;
                     bestScore = int.MinValue;
                     nodeIndex = (int)i;
-#if DEBUG
-                    Debug.Assert(disjointRects.Disjoint(new Rect() { x = bestResult.X, y = bestResult.Y, height = height, width = width }));
-#endif
+
                     break;
                 }
                 else if (width <= freeRectangles[i].width && height <= freeRectangles[i].height)
@@ -184,9 +164,6 @@ namespace RectangleBinPacking
                         bestResult.Y = freeRectangles[i].y;
                         bestScore = score;
                         nodeIndex = (int)i;
-#if DEBUG
-                        Debug.Assert(disjointRects.Disjoint(new Rect() { x = bestResult.X, y = bestResult.Y, height = height, width = width }));
-#endif
                     }
                 }
                 else if (height <= freeRectangles[i].width && width <= freeRectangles[i].height)
@@ -199,9 +176,6 @@ namespace RectangleBinPacking
                         bestResult.Y = freeRectangles[i].y;
                         bestScore = score;
                         nodeIndex = (int)i;
-#if DEBUG
-                        Debug.Assert(disjointRects.Disjoint(new Rect() { x = bestResult.X, y = bestResult.Y, height = height, width = width }));
-#endif
                     }
                 }
             }
@@ -332,10 +306,6 @@ namespace RectangleBinPacking
             {
                 freeRectangles.Add(right);
             }
-#if DEBUG
-            Debug.Assert(disjointRects.Disjoint(bottom));
-            Debug.Assert(disjointRects.Disjoint(right));
-#endif
         }
     }
 

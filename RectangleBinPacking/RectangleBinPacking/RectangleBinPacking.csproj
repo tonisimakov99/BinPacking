@@ -8,8 +8,9 @@
 		<Description>Rectangle bin packing problem solver</Description>
 		<PackageProjectUrl>https://github.com/tonisimakov99/RectangleBinPacking</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/tonisimakov99/RectangleBinPacking</RepositoryUrl>
-		<PackageReleaseNotes>Current release: now shelf and max rects only</PackageReleaseNotes>
+		<PackageReleaseNotes>Current release: InsertResult override ToString()</PackageReleaseNotes>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Version>1.0.2</Version>
 		<PackageTags>Bin;Packing;2D;MaxRects,Shelf,Atlas,Texture</PackageTags>
 	</PropertyGroup>
 

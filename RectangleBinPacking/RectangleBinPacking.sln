@@ -7,7 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RectangleBinPacking", "Rect
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RectangleBinPacking.DrawerDemo", "RectangleBinPacking.DrawerDemo\RectangleBinPacking.DrawerDemo.csproj", "{846124E0-E3B3-44DA-9189-EC920F307DF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RectangleBinPacking.Tests", "RectangleBinPacking.Tests\RectangleBinPacking.Tests.csproj", "{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RectangleBinPacking.Tests", "RectangleBinPacking.Tests\RectangleBinPacking.Tests.csproj", "{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RectangleBinPacking.FontDrawer", "RectangleBinPacking.FontDrawer\RectangleBinPacking.FontDrawer.csproj", "{4A1C52AD-8D04-4292-A23B-E6C11658971A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontAtlasBuilding", "FontAtlasBuilding\FontAtlasBuilding.csproj", "{54E5D850-9049-4932-8F85-AF9C40DFEF7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9993F55F-A09D-45F1-BD81-7FEB2432EFBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A1C52AD-8D04-4292-A23B-E6C11658971A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A1C52AD-8D04-4292-A23B-E6C11658971A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A1C52AD-8D04-4292-A23B-E6C11658971A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A1C52AD-8D04-4292-A23B-E6C11658971A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54E5D850-9049-4932-8F85-AF9C40DFEF7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54E5D850-9049-4932-8F85-AF9C40DFEF7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54E5D850-9049-4932-8F85-AF9C40DFEF7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54E5D850-9049-4932-8F85-AF9C40DFEF7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
