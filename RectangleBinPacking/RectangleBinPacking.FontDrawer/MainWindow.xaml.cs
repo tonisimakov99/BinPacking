@@ -99,7 +99,7 @@ namespace RectangleBinPacking.FontDrawer
                         var rect = new Rectangle();
                         rect.Width = 1;
                         rect.Height = 1;
-                        rect.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(data[j, i], data[j, i], data[j, i]));
+                        rect.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(fontAtlas.Atlas[pos.X + i, pos.Y + j], fontAtlas.Atlas[pos.X + i, pos.Y + j], fontAtlas.Atlas[pos.X + i, pos.Y + j]));
                         Canvas.SetLeft(rect, pos.X + i);
                         Canvas.SetTop(rect, pos.Y + j);
                         Canv.Children.Add(rect);
@@ -115,7 +115,7 @@ namespace RectangleBinPacking.FontDrawer
                         var rect = new Rectangle();
                         rect.Width = 1;
                         rect.Height = 1;
-                        rect.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(data[i, j], data[i, j], data[i, j]));
+                        rect.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(fontAtlas.Atlas[pos.X + i, pos.Y + j], fontAtlas.Atlas[pos.X + i, pos.Y + j], fontAtlas.Atlas[pos.X + i, pos.Y + j]));
                         Canvas.SetLeft(rect, pos.X + i);
                         Canvas.SetTop(rect, pos.Y + j);
                         Canv.Children.Add(rect);

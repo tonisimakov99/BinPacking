@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using RectangleBinPacking;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
@@ -73,8 +74,39 @@ namespace FontAtlasBuilding
             var totalSize = MathF.Sqrt(totalArea);
             while (true)
             {
-                if(TryBuildAtlas(totalSize, bitmaps, out var fontAtlas))
+                if (TryBuildAtlas((int)totalSize, bitmaps, out var fontAtlas))
                 {
+                    var bytes = new byte[(int)totalSize, (int)totalSize];
+
+                    foreach (var chr in fontAtlas.Positions.Keys)
+                    {
+                        var data = fontAtlas.Data[chr];
+                        var pos = fontAtlas.Positions[chr];
+
+                        if (pos.Rotate)
+                        {
+                            for (var i = 0; i != data.GetLength(1); i++)
+                            {
+                                for (var j = 0; j != data.GetLength(0); j++)
+                                {
+                                    bytes[pos.X + i, pos.Y + j] = data[j, i];
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (var i = 0; i != data.GetLength(0); i++)
+                            {
+                                for (var j = 0; j != data.GetLength(1); j++)
+                                {
+                                    bytes[pos.X + i, pos.Y + j] = data[i, j];
+                                }
+                            }
+                        }
+                    }
+
+                    fontAtlas.Atlas = bytes;
+
                     return fontAtlas;
                 }
                 else
@@ -85,10 +117,10 @@ namespace FontAtlasBuilding
             }
         }
 
-        private bool TryBuildAtlas(float size, Dictionary<char, byte[,]> bitmaps, out FontAtlas fontAtlas)
+        private bool TryBuildAtlas(int size, Dictionary<char, byte[,]> bitmaps, out FontAtlas fontAtlas)
         {
             fontAtlas = default;
-            var maxRectsPacking = new MaxRectsBinPack<int>((int)size, (int)size, FreeRectChoiceHeuristic.RectBestAreaFit);
+            var maxRectsPacking = new MaxRectsBinPack<int>(size, size, FreeRectChoiceHeuristic.RectBestAreaFit);
             var idx = 0;
             var results = new Dictionary<char, InsertResult>();
             foreach (var key in bitmaps.Keys)
@@ -100,13 +132,7 @@ namespace FontAtlasBuilding
                 idx++;
             }
 
-            fontAtlas = new FontAtlas()
-            {
-                Width = (int)size,
-                Height = (int)size,
-                Data = bitmaps,
-                Positions = results
-            };
+            fontAtlas = new FontAtlas(bitmaps, results);
             return true;
         }
 

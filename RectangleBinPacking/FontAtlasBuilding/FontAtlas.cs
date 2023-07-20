@@ -9,10 +9,17 @@ namespace FontAtlasBuilding
 {
     public class FontAtlas
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        internal FontAtlas(Dictionary<char, byte[,]> data, Dictionary<char, InsertResult> positions )
+        {
+            Data = data;
+            Positions = positions;
+        }
+        public int Width { get => Atlas.GetLength(0); }
+        public int Height { get => Atlas.GetLength(1); }
 
-        public Dictionary<char, byte[,]> Data { get; set; } = new Dictionary<char, byte[,]>();
-        public Dictionary<char, InsertResult> Positions { get; set; } = new Dictionary<char, InsertResult>();
+        public Dictionary<char, byte[,]> Data { get; private set; } = new Dictionary<char, byte[,]>();
+        public Dictionary<char, InsertResult> Positions { get; private set; } = new Dictionary<char, InsertResult>();
+
+        public byte[,] Atlas { get; internal set; }
     }
 }
