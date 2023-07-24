@@ -23,6 +23,7 @@ namespace BinPackingTests
                 ((10, 15), (10, 15)),
                 ((10, 12), (10, 25))
             };
+
         [Test]
         public void MaxRectsBinPackCorrectTest()
         {

@@ -2,10 +2,10 @@
 
 namespace ArrayBinPacking
 {
-    public class BinPack<TId> where TId : struct
+    public class ArrayBinPack<TId> where TId : struct
     {
 
-        public BinPack(int size)
+        public ArrayBinPack(int size)
         {
             freeSegments.Add(new Segment(0, size));
         }
@@ -21,7 +21,7 @@ namespace ArrayBinPacking
             var freeSegment = freeSegments[freeIndex.Value];
             freeSegments.RemoveAt(freeIndex.Value);
 
-            freeSegments.Add(new Segment(freeSegment.Position + freeSegment.Length - width, freeSegment.Length - width));
+            freeSegments.Add(new Segment(freeSegment.Position +  width, freeSegment.Length - width));
             segments[id] = new Segment(freeSegment.Position, width);
 
             return freeSegment.Position;
