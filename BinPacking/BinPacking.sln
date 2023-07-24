@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33801.468
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArrayBinPacking", "ArrayBinPacking\ArrayBinPacking.csproj", "{07B0BEEE-DAB6-4A05-9401-7C31CA0FEDBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontAtlasBuilding", "FontAtlasBuilding\FontAtlasBuilding.csproj", "{476E1D4D-FFFC-4B3B-92E1-6CFC55FD03AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RectangleBinPacking", "RectangleBinPacking\RectangleBinPacking.csproj", "{90DC6293-DDB5-478F-A050-DD0BFEB9FAFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RectangleBinPacking.DrawerDemo", "RectangleBinPacking.DrawerDemo\RectangleBinPacking.DrawerDemo.csproj", "{7EA4EB9D-402A-46F8-920C-807264C51BB9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RectangleBinPacking.FontDrawer", "RectangleBinPacking.FontDrawer\RectangleBinPacking.FontDrawer.csproj", "{B1956AA5-3200-437D-B3EA-78BA7E47B5F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinPackingTests", "BinPackingTests\BinPackingTests.csproj", "{F321B2EB-6B6D-4B88-A5FC-0FB6550B1E2C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07B0BEEE-DAB6-4A05-9401-7C31CA0FEDBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07B0BEEE-DAB6-4A05-9401-7C31CA0FEDBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07B0BEEE-DAB6-4A05-9401-7C31CA0FEDBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07B0BEEE-DAB6-4A05-9401-7C31CA0FEDBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{476E1D4D-FFFC-4B3B-92E1-6CFC55FD03AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{476E1D4D-FFFC-4B3B-92E1-6CFC55FD03AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{476E1D4D-FFFC-4B3B-92E1-6CFC55FD03AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{476E1D4D-FFFC-4B3B-92E1-6CFC55FD03AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90DC6293-DDB5-478F-A050-DD0BFEB9FAFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90DC6293-DDB5-478F-A050-DD0BFEB9FAFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90DC6293-DDB5-478F-A050-DD0BFEB9FAFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90DC6293-DDB5-478F-A050-DD0BFEB9FAFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EA4EB9D-402A-46F8-920C-807264C51BB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EA4EB9D-402A-46F8-920C-807264C51BB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EA4EB9D-402A-46F8-920C-807264C51BB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EA4EB9D-402A-46F8-920C-807264C51BB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1956AA5-3200-437D-B3EA-78BA7E47B5F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1956AA5-3200-437D-B3EA-78BA7E47B5F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1956AA5-3200-437D-B3EA-78BA7E47B5F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1956AA5-3200-437D-B3EA-78BA7E47B5F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F321B2EB-6B6D-4B88-A5FC-0FB6550B1E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F321B2EB-6B6D-4B88-A5FC-0FB6550B1E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F321B2EB-6B6D-4B88-A5FC-0FB6550B1E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F321B2EB-6B6D-4B88-A5FC-0FB6550B1E2C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {891949A5-7739-4A5A-94B3-BE3E56F5CF74}
+	EndGlobalSection
+EndGlobal

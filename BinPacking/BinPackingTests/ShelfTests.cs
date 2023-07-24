@@ -1,11 +1,12 @@
 ﻿
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
+using RectangleBinPacking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RectangleBinPacking.Tests
+namespace BinPackingTests
 {
     [TestFixture]
     public class ShelfTests

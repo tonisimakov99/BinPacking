@@ -6,12 +6,12 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Description>Font atlas builder</Description>
-		<PackageProjectUrl>https://github.com/tonisimakov99/RectangleBinPacking</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/tonisimakov99/RectangleBinPacking</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/tonisimakov99/BinPacking</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/tonisimakov99/BinPacking</RepositoryUrl>
 		<PackageReleaseNotes>Total bytes array for atlas.</PackageReleaseNotes>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Version>1.2.0</Version>
-		<PackageTags>FontAtlasBuilder;Font;Atlas;Builder;</PackageTags>
+		<PackageTags>FontAtlasBuilding;Font;Atlas;Building;</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
