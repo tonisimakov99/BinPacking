@@ -18,7 +18,7 @@ namespace FontAtlasBuilding
         public const string UpperRussianAlphabet = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
         public const string LowerRussianAlphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
         public const string Numbers = "1234567890";
-        public const string PunctuationMarks = "`~!@\"\'$#%^:;&?*().,/\\[]{}";
+        public const string PunctuationMarks = "`~!@\"\'$#%^:;&?*().,/\\[]{} ";
         private readonly ILogger logger;
         private readonly float scaleSizeFactor;
         FT_LibraryRec_* libraryRec;
@@ -35,9 +35,18 @@ namespace FontAtlasBuilding
             this.scaleSizeFactor = scaleSizeFactor;
         }
 
-        public FontAtlas BuildAtlas(byte[] fontData, float size)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fontData"></param>
+        /// <param name="size"></param>
+        /// <param name="set">Строка со всеми символами в атласе, если null - используется встроенный</param>
+        /// <returns></returns>
+        public FontAtlas BuildAtlas(byte[] fontData, float size, string? set = null)
         {
-            var alphabet = UpperEnglishAlphabet + LowerEnglishAlphabet + UpperRussianAlphabet + LowerRussianAlphabet + Numbers + PunctuationMarks;
+            var defaultSet = set;
+            if (defaultSet == null)
+                defaultSet = UpperEnglishAlphabet + LowerEnglishAlphabet + UpperRussianAlphabet + LowerRussianAlphabet + Numbers + PunctuationMarks;
 
             FT_FaceRec_* faceRec = default;
 
@@ -48,7 +57,7 @@ namespace FontAtlasBuilding
                 var error = FT.FT_New_Memory_Face(libraryRec, pointer, fontData.Length, 0, &faceRec);
                 error = FT.FT_Set_Char_Size(faceRec, (int)(size * 64), (int)(size * 64), 96, 96);
 
-                foreach (var chr in alphabet)
+                foreach (var chr in defaultSet)
                 {
                     var index = FT.FT_Get_Char_Index(faceRec, chr);
                     error = FT.FT_Load_Glyph(faceRec, index, FT_LOAD.FT_LOAD_DEFAULT);

@@ -61,7 +61,7 @@ namespace RectangleBinPacking.FontDrawer
             currentChr = 0;
             Canv.Children.Clear();
 
-            fontAtlas = atlasBuilder.BuildAtlas(((Font)FontsComboBox.SelectedValue).Data, 40);
+            fontAtlas = atlasBuilder.BuildAtlas(((Font)FontsComboBox.SelectedValue).Data, 72);
             Canv.Height = fontAtlas.Height;
             Canv.Width = fontAtlas.Width;
         }

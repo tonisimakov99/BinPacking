@@ -19,4 +19,13 @@
 	  <ProjectReference Include="..\FontAtlasBuilding\FontAtlasBuilding.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="impact2.ttf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Shentox-Regular %28RUS by Slavchansky%29_0.ttf">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>
