@@ -1,44 +1,68 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ArrayBinPacking
 {
     public class ArrayBinPack<TId> where TId : struct
     {
 
-        public ArrayBinPack(int size)
+        public ArrayBinPack(int binSize, int binCount)
         {
-            freeSegments.Add(new Segment(0, size));
+            this.binSize = binSize;
+            this.binCount = binCount;
+            //freeSegments.Add(new Segment(0, binSize));
         }
 
-        private List<Segment> freeSegments = new();
+        private Dictionary<int, List<Segment>> bins = new();
         private Dictionary<TId, Segment> segments = new();
-        public int? Insert(TId id, int width)
+        private readonly int binSize;
+        private readonly int binCount;
+        private int currentBinId = -1;
+        public InsertResult? Insert(TId id, int width)
         {
             var freeIndex = SelectFreeWidth(width);
             if (!freeIndex.HasValue)
-                return null;
+            {
+                if (currentBinId + 1 >= binCount)
+                    return null;
 
-            var freeSegment = freeSegments[freeIndex.Value];
-            freeSegments.RemoveAt(freeIndex.Value);
+                currentBinId++;
+                if (!bins.ContainsKey(currentBinId))
+                {
+                    var list = new List<Segment>
+                    {
+                        new Segment(0, binSize, currentBinId)
+                    };
+                    bins.Add(currentBinId, list);
+                }
+                freeIndex = SelectFreeWidth(width);
+                if (!freeIndex.HasValue)
+                    return null;
+            }
 
-            freeSegments.Add(new Segment(freeSegment.Position +  width, freeSegment.Length - width));
-            segments[id] = new Segment(freeSegment.Position, width);
+            var freeSegment = bins[currentBinId][freeIndex.Value];
+            bins[currentBinId].RemoveAt(freeIndex.Value);
 
-            return freeSegment.Position;
+            bins[currentBinId].Add(new Segment(freeSegment.Position + width, freeSegment.Length - width, currentBinId));
+            segments[id] = new Segment(freeSegment.Position, width, currentBinId);
+
+            return new InsertResult() { BinId = currentBinId, Offset = freeSegment.Position };
         }
 
         public void FreeSegment(TId id)
         {
             var segment = segments[id];
             segments.Remove(id);
-            freeSegments.Add(segment);
+            bins[segment.BinId].Add(segment);
         }
 
         private int? SelectFreeWidth(int width)
         {
-            for (var i = 0; i < freeSegments.Count; i++)
+            if(!bins.ContainsKey(currentBinId))
+                return null;
+            for (var i = 0; i < bins[currentBinId].Count; i++)
             {
-                if (freeSegments[i].Length >= width)
+                if (bins[currentBinId][i].Length >= width)
                     return i;
             }
             return null;

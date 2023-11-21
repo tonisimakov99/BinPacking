@@ -25,7 +25,7 @@ namespace BinPackingTests
         [Test]
         public void ArrayBinPackCorrectTest()
         {
-            var arrayBinPack = new ArrayBinPack<int>(size);
+            var arrayBinPack = new ArrayBinPack<int>(size, 1);
 
             var sourceWidths = segments.Select(t => t.source).ToArray();
             var resultPosExpected = segments.Select(t => t.result).ToArray();
@@ -36,7 +36,7 @@ namespace BinPackingTests
             {
                 var result = arrayBinPack.Insert(i, sourceWidths[i]);
                 Assert.That(result.HasValue, Is.True, "Результат работы с индексом {0} был false", i);
-                resultPosActual.Add(result.Value);
+                resultPosActual.Add(result.Value.Offset);
             }
             Assert.That(resultPosActual, Is.EqualTo(resultPosExpected));
         }
